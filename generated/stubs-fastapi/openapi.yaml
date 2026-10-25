@@ -1,0 +1,909 @@
+openapi: 3.0.3
+info:
+  contact:
+    name: "Equipo FacturaEC (Byron Bravo, Jairo Jácome, Jordan Montenegro, Luis Cisneros)"
+    url: https://github.com/byronbravo1080/ApiFacturacion
+  description: |
+    API REST de FacturaEC, sistema de facturación electrónica para pequeñas empresas de Ecuador
+    (Módulo 8 · Maestría en Ingeniería en Software · UPEC).
+
+    Contrato API-first (ADR-005): es la fuente de verdad de la que se generan la documentación,
+    el servidor mock y los stubs. Cada operación indica la historia (HU) y el escenario de calidad (E)
+    que la originan. Las tarifas de IVA y el formato de la clave de acceso deben contrastarse con la
+    ficha técnica vigente del SRI antes de pasar a producción.
+  license:
+    name: Uso académico
+    url: https://github.com/byronbravo1080/ApiFacturacion
+  title: FacturaEC API
+  version: 0.2.0
+servers:
+- description: Servidor local de desarrollo (también el mock de Prism en el puerto
+    4010)
+  url: http://localhost:8000
+security:
+- bearerAuth: []
+tags:
+- description: Verificación de estado del servicio.
+  name: Sistema
+- description: Registro del emisor y obtención del token (HU1).
+  name: Auth
+- description: "Clientes de cada emisor, aislados por emisor (HU2, E1)."
+  name: Clientes
+- description: Productos con su precio y tarifa de IVA (HU3).
+  name: Productos
+- description: "Emisión, numeración y envío al SRI (HU4 a HU7, E2, E6)."
+  name: Facturas
+paths:
+  /health:
+    get:
+      description: Usado por la plataforma de despliegue para reiniciar la API si
+        no responde (riesgo 11.2 del dossier). No requiere token.
+      operationId: verificarEstado
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Estado"
+          description: El servicio está activo.
+        "503":
+          description: El servicio no puede atender solicitudes.
+      security: []
+      summary: Verificar el estado del servicio
+      tags:
+      - Sistema
+  /api/v1/auth/registro:
+    post:
+      description: Crea el emisor y su usuario administrador y devuelve un token de
+        acceso (HU1). No requiere token.
+      operationId: registrarEmisor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegistroEmisor"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+          description: Emisor registrado.
+        "409":
+          content:
+            application/json:
+              example:
+                codigo: CONFLICTO
+                mensaje: El RUC ya está registrado.
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: El RUC ya está registrado.
+        "422":
+          content:
+            application/json:
+              example:
+                codigo: VALIDACION
+                mensaje: Los datos de entrada no cumplen el contrato.
+                detalles:
+                - campo: nombre del campo con error
+                  mensaje: descripción del error de validación
+              schema:
+                $ref: "#/components/schemas/ErrorValidacion"
+          description: Los datos de entrada no cumplen el contrato.
+      security: []
+      summary: Registrar un emisor
+      tags:
+      - Auth
+  /api/v1/clientes:
+    post:
+      description: "Registra un cliente del emisor autenticado (HU2, E1)."
+      operationId: registrarCliente
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClienteNuevo"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cliente"
+          description: Cliente registrado.
+        "401":
+          content:
+            application/json:
+              example:
+                codigo: NO_AUTENTICADO
+                mensaje: Falta el token o no es válido.
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Falta el token o no es válido (E1).
+        "422":
+          content:
+            application/json:
+              example:
+                codigo: VALIDACION
+                mensaje: Los datos de entrada no cumplen el contrato.
+                detalles:
+                - campo: nombre del campo con error
+                  mensaje: descripción del error de validación
+              schema:
+                $ref: "#/components/schemas/ErrorValidacion"
+          description: Los datos de entrada no cumplen el contrato.
+      summary: Registrar un cliente
+      tags:
+      - Clientes
+  /api/v1/clientes/{clienteId}:
+    get:
+      description: "Devuelve un cliente del emisor autenticado. Responde 404 si no\
+        \ existe o pertenece a otro emisor, sin revelar cuál de los dos casos ocurre\
+        \ (E1)."
+      operationId: obtenerCliente
+      parameters:
+      - description: Identificador del cliente.
+        explode: false
+        in: path
+        name: clienteId
+        required: true
+        schema:
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cliente"
+          description: Datos del cliente.
+        "401":
+          content:
+            application/json:
+              example:
+                codigo: NO_AUTENTICADO
+                mensaje: Falta el token o no es válido.
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Falta el token o no es válido (E1).
+        "404":
+          content:
+            application/json:
+              example:
+                codigo: NO_ENCONTRADO
+                mensaje: Recurso no encontrado.
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: El recurso no existe o pertenece a otro emisor; no se revela
+            cuál de los dos casos ocurre (E1).
+      summary: Consultar un cliente
+      tags:
+      - Clientes
+  /api/v1/productos:
+    post:
+      description: Registra un producto con su precio unitario y su tarifa de IVA
+        (HU3).
+      operationId: registrarProducto
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductoNuevo"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Producto"
+          description: Producto registrado.
+        "401":
+          content:
+            application/json:
+              example:
+                codigo: NO_AUTENTICADO
+                mensaje: Falta el token o no es válido.
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Falta el token o no es válido (E1).
+        "422":
+          content:
+            application/json:
+              example:
+                codigo: VALIDACION
+                mensaje: Los datos de entrada no cumplen el contrato.
+                detalles:
+                - campo: nombre del campo con error
+                  mensaje: descripción del error de validación
+              schema:
+                $ref: "#/components/schemas/ErrorValidacion"
+          description: Los datos de entrada no cumplen el contrato.
+      summary: Registrar un producto
+      tags:
+      - Productos
+  /api/v1/facturas:
+    post:
+      description: |
+        Calcula subtotal, IVA y total; asigna el siguiente secuencial del emisor bajo bloqueo de fila
+        y genera la clave de acceso de 49 dígitos (HU4, HU5, E6). La factura queda en estado CREADA.
+        Responde 404 si el cliente o algún producto no existen o pertenecen a otro emisor (E1).
+      operationId: crearFactura
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FacturaNueva"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Factura"
+          description: Factura creada.
+        "401":
+          content:
+            application/json:
+              example:
+                codigo: NO_AUTENTICADO
+                mensaje: Falta el token o no es válido.
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Falta el token o no es válido (E1).
+        "404":
+          content:
+            application/json:
+              example:
+                codigo: NO_ENCONTRADO
+                mensaje: Recurso no encontrado.
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: El recurso no existe o pertenece a otro emisor; no se revela
+            cuál de los dos casos ocurre (E1).
+        "422":
+          content:
+            application/json:
+              example:
+                codigo: VALIDACION
+                mensaje: Los datos de entrada no cumplen el contrato.
+                detalles:
+                - campo: nombre del campo con error
+                  mensaje: descripción del error de validación
+              schema:
+                $ref: "#/components/schemas/ErrorValidacion"
+          description: Los datos de entrada no cumplen el contrato.
+      summary: Crear una factura
+      tags:
+      - Facturas
+  /api/v1/facturas/{facturaId}:
+    get:
+      description: "Devuelve la factura, su estado de autorización y el total de intentos\
+        \ de envío (HU7). Responde 404 si es de otro emisor (E1)."
+      operationId: obtenerFactura
+      parameters:
+      - description: Identificador de la factura.
+        explode: false
+        in: path
+        name: facturaId
+        required: true
+        schema:
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Factura"
+          description: Datos de la factura.
+        "401":
+          content:
+            application/json:
+              example:
+                codigo: NO_AUTENTICADO
+                mensaje: Falta el token o no es válido.
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Falta el token o no es válido (E1).
+        "404":
+          content:
+            application/json:
+              example:
+                codigo: NO_ENCONTRADO
+                mensaje: Recurso no encontrado.
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: El recurso no existe o pertenece a otro emisor; no se revela
+            cuál de los dos casos ocurre (E1).
+      summary: Consultar una factura y su estado
+      tags:
+      - Facturas
+  /api/v1/facturas/{facturaId}/enviar-sri:
+    post:
+      description: |
+        Envía la factura al SRI mediante el adaptador SriGateway (HU6, E2). Política de reintentos:
+        hasta 3 intentos por solicitud, con esperas de 1 s y 2 s, y una respuesta en 60 s o menos.
+        Si el SRI no responde, la factura se conserva en estado PENDIENTE y se responde 202.
+        Solo se envían facturas CREADAS o PENDIENTES; una factura AUTORIZADA responde 409 para evitar
+        una doble autorización (riesgo 11.2 del dossier). El tiempo máximo de 15 s por intento (E8)
+        queda para una versión posterior.
+      operationId: enviarFacturaSri
+      parameters:
+      - description: Identificador de la factura.
+        explode: false
+        in: path
+        name: facturaId
+        required: true
+        schema:
+          minimum: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResultadoEnvio"
+          description: Factura autorizada por el SRI.
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResultadoEnvio"
+          description: El SRI no respondió tras 3 intentos; la factura queda PENDIENTE
+            para reenviarla después.
+        "401":
+          content:
+            application/json:
+              example:
+                codigo: NO_AUTENTICADO
+                mensaje: Falta el token o no es válido.
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Falta el token o no es válido (E1).
+        "404":
+          content:
+            application/json:
+              example:
+                codigo: NO_ENCONTRADO
+                mensaje: Recurso no encontrado.
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: El recurso no existe o pertenece a otro emisor; no se revela
+            cuál de los dos casos ocurre (E1).
+        "409":
+          content:
+            application/json:
+              example:
+                codigo: CONFLICTO
+                mensaje: La factura ya está autorizada.
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: La factura ya está autorizada; no se reenvía para evitar una
+            doble autorización (riesgo 11.2 del dossier).
+      summary: Enviar una factura al SRI
+      tags:
+      - Facturas
+components:
+  parameters:
+    ClienteId:
+      description: Identificador del cliente.
+      explode: false
+      in: path
+      name: clienteId
+      required: true
+      schema:
+        minimum: 1
+        type: integer
+      style: simple
+    FacturaId:
+      description: Identificador de la factura.
+      explode: false
+      in: path
+      name: facturaId
+      required: true
+      schema:
+        minimum: 1
+        type: integer
+      style: simple
+  responses:
+    NoAutenticado:
+      content:
+        application/json:
+          example:
+            codigo: NO_AUTENTICADO
+            mensaje: Falta el token o no es válido.
+          schema:
+            $ref: "#/components/schemas/Error"
+      description: Falta el token o no es válido (E1).
+    NoEncontrado:
+      content:
+        application/json:
+          example:
+            codigo: NO_ENCONTRADO
+            mensaje: Recurso no encontrado.
+          schema:
+            $ref: "#/components/schemas/Error"
+      description: El recurso no existe o pertenece a otro emisor; no se revela cuál
+        de los dos casos ocurre (E1).
+    RucRegistrado:
+      content:
+        application/json:
+          example:
+            codigo: CONFLICTO
+            mensaje: El RUC ya está registrado.
+          schema:
+            $ref: "#/components/schemas/Error"
+      description: El RUC ya está registrado.
+    FacturaAutorizada:
+      content:
+        application/json:
+          example:
+            codigo: CONFLICTO
+            mensaje: La factura ya está autorizada.
+          schema:
+            $ref: "#/components/schemas/Error"
+      description: La factura ya está autorizada; no se reenvía para evitar una doble
+        autorización (riesgo 11.2 del dossier).
+    DatosInvalidos:
+      content:
+        application/json:
+          example:
+            codigo: VALIDACION
+            mensaje: Los datos de entrada no cumplen el contrato.
+            detalles:
+            - campo: nombre del campo con error
+              mensaje: descripción del error de validación
+          schema:
+            $ref: "#/components/schemas/ErrorValidacion"
+      description: Los datos de entrada no cumplen el contrato.
+  schemas:
+    Monto:
+      description: Valor monetario en dólares con dos decimales.
+      example: "11.50"
+      pattern: "^[0-9]{1,10}\\.[0-9]{2}$"
+      title: precioUnitario
+      type: string
+    EstadoFactura:
+      description: "CREADA (aún no enviada), PENDIENTE (el SRI no respondió) o AUTORIZADA."
+      enum:
+      - CREADA
+      - PENDIENTE
+      - AUTORIZADA
+      title: EstadoFactura
+      type: string
+    Estado:
+      example:
+        estado: ok
+      properties:
+        estado:
+          example: ok
+          title: estado
+          type: string
+      required:
+      - estado
+      title: Estado
+      type: object
+    RegistroEmisor:
+      example:
+        ruc: "9990000001001"
+        razonSocial: razonSocial
+        clave: clave
+      properties:
+        ruc:
+          description: RUC de 13 dígitos terminado en 001.
+          example: "9990000001001"
+          pattern: "^[0-9]{10}001$"
+          title: ruc
+          type: string
+        razonSocial:
+          maxLength: 300
+          minLength: 1
+          title: razonSocial
+          type: string
+        clave:
+          format: password
+          minLength: 8
+          title: clave
+          type: string
+          writeOnly: true
+      required:
+      - clave
+      - razonSocial
+      - ruc
+      title: RegistroEmisor
+      type: object
+    Token:
+      example:
+        accessToken: accessToken
+        tokenType: bearer
+        emisorId: 0
+      properties:
+        accessToken:
+          title: accessToken
+          type: string
+        tokenType:
+          enum:
+          - bearer
+          title: tokenType
+          type: string
+        emisorId:
+          title: emisorId
+          type: integer
+      required:
+      - accessToken
+      - emisorId
+      - tokenType
+      title: Token
+      type: object
+    ClienteNuevo:
+      example:
+        tipoIdentificacion: CEDULA
+        identificacion: identificacion
+        razonSocial: razonSocial
+        direccion: direccion
+      properties:
+        tipoIdentificacion:
+          enum:
+          - CEDULA
+          - RUC
+          - PASAPORTE
+          title: tipoIdentificacion
+          type: string
+        identificacion:
+          maxLength: 20
+          minLength: 3
+          title: identificacion
+          type: string
+        razonSocial:
+          maxLength: 300
+          minLength: 1
+          title: razonSocial
+          type: string
+        direccion:
+          maxLength: 300
+          title: direccion
+          type: string
+      required:
+      - identificacion
+      - razonSocial
+      - tipoIdentificacion
+      title: ClienteNuevo
+      type: object
+    Cliente:
+      allOf:
+      - $ref: "#/components/schemas/ClienteNuevo"
+      - properties:
+          id:
+            readOnly: true
+            type: integer
+        required:
+        - id
+        type: object
+      example:
+        tipoIdentificacion: CEDULA
+        identificacion: identificacion
+        razonSocial: razonSocial
+        direccion: direccion
+        id: 0
+      title: Cliente
+    ProductoNuevo:
+      example:
+        codigo: codigo
+        descripcion: descripcion
+        precioUnitario: "11.50"
+        tarifaIva: 0
+      properties:
+        codigo:
+          maxLength: 25
+          minLength: 1
+          title: codigo
+          type: string
+        descripcion:
+          maxLength: 300
+          minLength: 1
+          title: descripcion
+          type: string
+        precioUnitario:
+          description: Valor monetario en dólares con dos decimales.
+          example: "11.50"
+          pattern: "^[0-9]{1,10}\\.[0-9]{2}$"
+          title: precioUnitario
+          type: string
+        tarifaIva:
+          description: Porcentaje de IVA. Verificar las tarifas vigentes en la ficha
+            técnica del SRI.
+          enum:
+          - 0
+          - 5
+          - 15
+          title: tarifaIva
+          type: integer
+      required:
+      - codigo
+      - descripcion
+      - precioUnitario
+      - tarifaIva
+      title: ProductoNuevo
+      type: object
+    Producto:
+      allOf:
+      - $ref: "#/components/schemas/ProductoNuevo"
+      - properties:
+          id:
+            readOnly: true
+            type: integer
+        required:
+        - id
+        type: object
+      example:
+        codigo: codigo
+        descripcion: descripcion
+        precioUnitario: "11.50"
+        tarifaIva: 0
+        id: 6
+      title: Producto
+    DetalleNuevo:
+      example:
+        productoId: 1
+        cantidad: 14658
+      properties:
+        productoId:
+          minimum: 1
+          title: productoId
+          type: integer
+        cantidad:
+          maximum: 100000
+          minimum: 1
+          title: cantidad
+          type: integer
+      required:
+      - cantidad
+      - productoId
+      title: DetalleNuevo
+      type: object
+    FacturaNueva:
+      example:
+        clienteId: 1
+        detalles:
+        - productoId: 1
+          cantidad: 14658
+        - productoId: 1
+          cantidad: 14658
+        - productoId: 1
+          cantidad: 14658
+        - productoId: 1
+          cantidad: 14658
+        - productoId: 1
+          cantidad: 14658
+      properties:
+        clienteId:
+          minimum: 1
+          title: clienteId
+          type: integer
+        detalles:
+          items:
+            $ref: "#/components/schemas/DetalleNuevo"
+          maxItems: 100
+          minItems: 1
+          title: detalles
+          type: array
+      required:
+      - clienteId
+      - detalles
+      title: FacturaNueva
+      type: object
+    Detalle:
+      properties:
+        productoId:
+          title: productoId
+          type: integer
+        descripcion:
+          title: descripcion
+          type: string
+        cantidad:
+          title: cantidad
+          type: integer
+        precioUnitario:
+          description: Valor monetario en dólares con dos decimales.
+          example: "11.50"
+          pattern: "^[0-9]{1,10}\\.[0-9]{2}$"
+          title: precioUnitario
+          type: string
+        tarifaIva:
+          title: tarifaIva
+          type: integer
+        subtotal:
+          description: Valor monetario en dólares con dos decimales.
+          example: "11.50"
+          pattern: "^[0-9]{1,10}\\.[0-9]{2}$"
+          title: precioUnitario
+          type: string
+        iva:
+          description: Valor monetario en dólares con dos decimales.
+          example: "11.50"
+          pattern: "^[0-9]{1,10}\\.[0-9]{2}$"
+          title: precioUnitario
+          type: string
+      required:
+      - cantidad
+      - descripcion
+      - iva
+      - precioUnitario
+      - productoId
+      - subtotal
+      - tarifaIva
+      title: Detalle
+      type: object
+    Factura:
+      example:
+        id: 1
+        numero: 001-001-000000001
+        claveAcceso: "2310202601999000000100110010010000000011234567811"
+        fechaEmision: 2026-10-23
+        clienteId: 1
+        estado: CREADA
+        subtotal: "10.00"
+        iva: "1.50"
+        total: "11.50"
+        intentosEnvio: 0
+        detalles:
+        - productoId: 1
+          descripcion: Producto ficticio
+          cantidad: 1
+          precioUnitario: "10.00"
+          tarifaIva: 15
+          subtotal: "10.00"
+          iva: "1.50"
+      properties:
+        id:
+          readOnly: true
+          type: integer
+        numero:
+          description: "Establecimiento, punto de emisión y secuencial."
+          example: 001-001-000000001
+          pattern: "^[0-9]{3}-[0-9]{3}-[0-9]{9}$"
+          type: string
+        claveAcceso:
+          description: Clave de acceso de 49 dígitos con dígito verificador módulo
+            11.
+          example: "2310202601999000000100110010010000000011234567811"
+          pattern: "^[0-9]{49}$"
+          type: string
+        fechaEmision:
+          format: date
+          type: string
+        clienteId:
+          type: integer
+        estado:
+          $ref: "#/components/schemas/EstadoFactura"
+        subtotal:
+          description: Valor monetario en dólares con dos decimales.
+          example: "11.50"
+          pattern: "^[0-9]{1,10}\\.[0-9]{2}$"
+          title: precioUnitario
+          type: string
+        iva:
+          description: Valor monetario en dólares con dos decimales.
+          example: "11.50"
+          pattern: "^[0-9]{1,10}\\.[0-9]{2}$"
+          title: precioUnitario
+          type: string
+        total:
+          description: Valor monetario en dólares con dos decimales.
+          example: "11.50"
+          pattern: "^[0-9]{1,10}\\.[0-9]{2}$"
+          title: precioUnitario
+          type: string
+        intentosEnvio:
+          description: Total acumulado de intentos de envío al SRI.
+          type: integer
+        detalles:
+          items:
+            $ref: "#/components/schemas/Detalle"
+          type: array
+      required:
+      - claveAcceso
+      - clienteId
+      - detalles
+      - estado
+      - fechaEmision
+      - id
+      - intentosEnvio
+      - iva
+      - numero
+      - subtotal
+      - total
+      title: Factura
+      type: object
+    ResultadoEnvio:
+      example:
+        facturaId: 1
+        estado: AUTORIZADA
+        intentosEnEsteEnvio: 1
+        mensaje: Factura autorizada por el SRI.
+        numeroAutorizacion: "2310202601999000000100110010010000000011234567811"
+      properties:
+        facturaId:
+          type: integer
+        estado:
+          $ref: "#/components/schemas/EstadoFactura"
+        intentosEnEsteEnvio:
+          description: Intentos hechos en esta solicitud (1 a 3). El total acumulado
+            está en Factura.intentosEnvio.
+          maximum: 3
+          minimum: 1
+          type: integer
+        mensaje:
+          type: string
+        numeroAutorizacion:
+          nullable: true
+          type: string
+      required:
+      - estado
+      - facturaId
+      - intentosEnEsteEnvio
+      - mensaje
+      title: ResultadoEnvio
+      type: object
+    Error:
+      example:
+        codigo: NO_ENCONTRADO
+        mensaje: mensaje
+      properties:
+        codigo:
+          example: NO_ENCONTRADO
+          title: codigo
+          type: string
+        mensaje:
+          title: mensaje
+          type: string
+      required:
+      - codigo
+      - mensaje
+      title: Error
+      type: object
+    ErrorValidacion:
+      allOf:
+      - $ref: "#/components/schemas/Error"
+      - properties:
+          detalles:
+            items:
+              $ref: "#/components/schemas/ErrorValidacion_allOf_detalles"
+            type: array
+        required:
+        - detalles
+        type: object
+      example:
+        codigo: NO_ENCONTRADO
+        mensaje: mensaje
+        detalles:
+        - campo: campo
+          mensaje: mensaje
+        - campo: campo
+          mensaje: mensaje
+      title: ErrorValidacion
+    ErrorValidacion_allOf_detalles:
+      example:
+        campo: campo
+        mensaje: mensaje
+      properties:
+        campo:
+          title: campo
+          type: string
+        mensaje:
+          title: mensaje
+          type: string
+      required:
+      - campo
+      - mensaje
+      title: ErrorValidacion_allOf_detalles
+      type: object
+  securitySchemes:
+    bearerAuth:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http
