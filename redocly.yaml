@@ -1,0 +1,8 @@
+# Configuración de Redocly CLI (revisor alternativo evaluado en docs/08-matriz-seleccion.md).
+# Redocly envía telemetría anónima de uso por defecto; se desactiva (riesgo de uso, ISO/IEC 14102).
+telemetry: off
+extends:
+  - recommended
+rules:
+  # El contrato describe el servidor local de desarrollo y el mock de Prism; es intencional.
+  no-server-example.com: off

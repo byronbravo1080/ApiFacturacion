@@ -1,0 +1,53 @@
+# Reglas de Spectral para el contrato de FacturaEC (T4, ADR-005).
+# Parte del conjunto estándar de OpenAPI y agrega cuatro reglas propias, que convierten en
+# comprobaciones automáticas los hallazgos detectados sobre el borrador v1
+# (ver docs/04-registro-ia.md), para no depender de repetir esa revisión.
+extends: ["spectral:oas"]
+rules:
+  facturaec-protegida-declara-401:
+    description: Toda operación protegida por token debe declarar la respuesta 401 (E1, CA2.3; hallazgo R3).
+    message: "La operación hereda bearerAuth y no declara 401."
+    severity: error
+    given: "$.paths[*][get,post,put,patch,delete]"
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          if:
+            not:
+              required: [security]
+          then:
+            properties:
+              responses:
+                required: ["401"]
+  facturaec-publica-explicita:
+    description: El registro y /health deben declararse públicos con security vacío (hallazgos R1 y R2).
+    message: "Esta operación debe declarar 'security: []' para ser pública."
+    severity: error
+    given: "$.paths['/health','/api/v1/auth/registro'][get,post]"
+    then:
+      field: security
+      function: truthy
+  facturaec-solo-dos-publicas:
+    description: Ninguna otra operación puede redefinir security; todas heredan bearerAuth (E1).
+    message: "Solo el registro y /health pueden redefinir 'security'."
+    severity: error
+    given: "$.paths[?(@property != '/health' && @property != '/api/v1/auth/registro')][get,post,put,patch,delete]"
+    then:
+      field: security
+      function: falsy
+  facturaec-cuerpo-declara-422:
+    description: Toda operación con requestBody debe declarar la respuesta 422 (CA3.2; hallazgos R6 y R7).
+    message: "La operación recibe datos y no declara 422."
+    severity: error
+    given: "$.paths[*][post,put,patch]"
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          if:
+            required: [requestBody]
+          then:
+            properties:
+              responses:
+                required: ["422"]
