@@ -53,7 +53,7 @@ C4Container
 | GET | `/api/v1/facturas/{id}/xml` | Descargar XML sin firmar |
 | GET | `/health` | Verificación de estado |
 
-El contrato completo se publica en `docs/openapi.json` (generado desde un prototipo de la API; ver «Otros usos de IA declarados» en el [registro de IA](../04-registro-ia.md)).
+El contrato completo está en [`api/openapi.yaml`](../../api/openapi.yaml), escrito antes del código (API-first, [ADR-005](../03-adr/adr-005-contrato-api-first-y-pruebas-bdd.md)). En v0.2.0 implementa 7 de las operaciones de esta tabla más `/health`. Las de descarga de RIDE y XML, el inicio de sesión y los listados quedan en el backlog (`docs/07`, sección 5.1).
 
 ## Coherencia con los escenarios
 

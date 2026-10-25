@@ -1,6 +1,6 @@
 # ADR-001 · Framework del backend: FastAPI (Python)
 
-- **Estado:** Propuesta — pendiente de ratificación por el equipo
+- **Estado:** Aceptado
 - **Fecha:** 2026-10-15
 
 ## Contexto

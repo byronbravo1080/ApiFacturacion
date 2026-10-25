@@ -1,6 +1,6 @@
 # ADR-002 · Base de datos: PostgreSQL gestionado
 
-- **Estado:** Propuesta — pendiente de ratificación por el equipo
+- **Estado:** Aceptado
 - **Fecha:** 2026-10-15
 
 ## Contexto

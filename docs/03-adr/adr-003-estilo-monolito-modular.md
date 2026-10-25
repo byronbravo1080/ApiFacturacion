@@ -1,6 +1,6 @@
 # ADR-003 · Estilo arquitectónico: monolito modular con adaptador del SRI
 
-- **Estado:** Propuesta — pendiente de ratificación por el equipo (decisión final de estilo)
+- **Estado:** Aceptado (decisión final de estilo)
 - **Fecha:** 2026-10-15 (actualizado el 2026-10-16 con E8 y la sensibilidad ampliada)
 - **Matriz de decisión:** [sección 10 de `01-contexto-y-drivers.md`](../01-contexto-y-drivers.md#10-matriz-ponderada-y-justificación)
 

@@ -1,6 +1,6 @@
 # ADR-004 · Organización del código: dos repositorios (backend + docs / frontend)
 
-- **Estado:** Propuesta — pendiente de ratificación por el equipo
+- **Estado:** Aceptado. **Modificado por [ADR-005](adr-005-contrato-api-first-y-pruebas-bdd.md)** en el origen del contrato: ahora es `api/openapi.yaml`, escrito antes del código.
 - **Fecha:** 2026-10-15
 
 ## Contexto
