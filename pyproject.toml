@@ -1,0 +1,60 @@
+[project]
+name = "facturaec"
+version = "0.2.0"
+description = "FacturaEC: API REST de facturación electrónica (esqueleto ejecutable, Módulo 8 UPEC)"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "sqlalchemy>=2.0",
+    "psycopg[binary]>=3.2",
+    "pydantic>=2.7",
+    "pyjwt>=2.8",
+    "pyyaml>=6.0",
+    "tzdata>=2024.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-bdd>=8",
+    "httpx>=0.27",
+    "ruff>=0.6",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "tests"]
+testpaths = ["tests"]
+bdd_features_base_dir = "tests/features"
+addopts = "-ra"
+markers = [
+    "postgresql: requiere PostgreSQL (TEST_DATABASE_URL); se omite con SQLite",
+    "HU1", "HU2", "HU3", "HU4", "HU5", "HU6", "HU7",
+    "E1", "E2", "E6",
+    "CA1.1", "CA1.2", "CA2.1", "CA2.2", "CA2.3", "CA3.1", "CA3.2", "CA4.1",
+    "CA5.1", "CA5.2", "CA5.3", "CA6.1", "CA6.2", "CA6.3", "CA6.4", "CA7.1",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+extend-exclude = ["generated", "docs"]
+
+[tool.ruff.lint]
+# E/W: estilo PEP 8 · F: errores (pyflakes) · I: orden de imports · B: errores probables
+# UP: sintaxis moderna · N: nombres · S: seguridad (bandit) · SIM: simplificaciones
+select = ["E", "W", "F", "I", "B", "UP", "N", "S", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106"]  # assert y claves ficticias en pruebas
+# Los textos de los pasos deben coincidir literalmente con el Gherkin; partirlos dificulta buscarlos.
+"tests/step_defs/**" = ["S101", "S105", "S106", "E501"]
+"src/facturaec/config.py" = ["S105"]   # valor por defecto solo para desarrollo, documentado
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Bases locales de desarrollo
+*.db
+
+# Variables de entorno (nunca versionar credenciales)
+.env
+.env.*
+
+# Sistema
+.DS_Store
+Thumbs.db
