@@ -1,0 +1,38 @@
+name: CI · Validación de Cadena CASE (Ruff + pytest)
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  verificar-backend:
+    name: Linter (Ruff) y Pruebas BDD (pytest)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Instalar dependencias del proyecto
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Ejecutar análisis estático con Ruff (T8)
+        run: |
+          ruff check src tests
+          ruff format --check src tests
+
+      - name: Ejecutar pruebas BDD y de conformidad con el contrato (T7)
+        env:
+          PYTHONPATH: src
+        run: |
+          pytest -v
