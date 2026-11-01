@@ -1,22 +1,28 @@
-## Qué cambia
+## Qué cambia y por qué
 
-<!-- Una o dos líneas. Indique el issue que cierra: Closes #N -->
+<!-- Describa brevemente el propósito de este Pull Request. Indique el número de issue que cierra para activar el cierre automático en GitHub: -->
 
 Closes #
 
-## Trazabilidad
+## Trazabilidad con FacturaEC
 
-- Historia(s): HU
-- Criterio(s) de aceptación: CA
-- Escenario(s): E
-- ADR afectado (si aplica): ADR-
+- **Tipo de cambio (Conventional Commits):** <!-- feat / fix / docs / chore / ci / test / build -->
+- **Historia / Escenario / Tarea (si aplica):** <!-- Ej.: HU1–HU7, E1, E2, E6, T4–T9 -->
+- **ADR o documento relacionado:** <!-- Ej.: ADR-004, docs/08-matriz-git-vs-svn.md, CONTRIBUTING.md -->
 
-## Rúbrica de revisión (la completa quien revisa, no quien propone el cambio)
+## Lista de verificación del autor (antes de pedir revisión)
 
-- [ ] El commit y la rama nombran el issue y siguen Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`).
-- [ ] Si cambió la API, se cambió primero `api/openapi.yaml` y `spectral lint api/openapi.yaml` no da errores.
-- [ ] `pytest` pasa, y la prueba de E6 (CA5.3) pasa contra PostgreSQL si se tocó la facturación.
-- [ ] `ruff check src tests` y `ruff format --check src tests` no reportan problemas.
-- [ ] Ninguna consulta devuelve datos de otro emisor: se filtra por el emisor del token (E1).
-- [ ] No hay credenciales, certificados, RUC reales ni datos personales en el cambio.
-- [ ] Si se usó IA, el uso quedó registrado en `docs/04-registro-ia.md` con su verificación.
+- [ ] La rama nació actualizada desde `main` y sigue el formato `<tipo>/issue-N-<descripcion>`.
+- [ ] Los commits son atómicos y cumplen **Conventional Commits** (`feat:`, `fix:`, `docs:`, `chore:`, `ci:`, `test:`).
+- [ ] No se incluyen secretos, URI de bases de datos con clave, certificados `.p12` ni RUC/datos reales (LOPDP / NIST SSDF).
+- [ ] Si se modificó `pyproject.toml`, la dependencia quedó registrada en `docs/10-gobierno-seguridad-y-dependencias.md`.
+
+## Rúbrica de revisión cruzada (la completa el compañero revisor)
+
+> **Nota para el revisor:** Deje además un comentario sustantivo en la revisión explicando qué comprobó en los archivos modificados.
+
+- [ ] El PR está vinculado a su issue (`Closes #N`) y el alcance del cambio es coherente y atómico.
+- [ ] Si se tocó `api/openapi.yaml`, pasa `spectral lint api/openapi.yaml` con 0 errores.
+- [ ] Si se tocó código en `src/` o `tests/`, pasan `ruff check src tests` y `pytest`.
+- [ ] Si es documentación técnica (ADR, matriz, reporte), cumple la estructura requerida y las citas en APA 7.
+- [ ] Si se utilizó asistencia de IA, quedó registrada y verificada en `docs/04-registro-ia.md`.
