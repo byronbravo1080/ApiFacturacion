@@ -1,6 +1,6 @@
 # 04 · Registro de uso de IA
 
-Registro de los usos de IA del proyecto. La primera parte cubre el dossier (Módulo 8, sesiones 1 a 3, v0.1.0). La [segunda parte](#semana-2-sesiones-4-a-6--cadena-case-v020) cubre la cadena CASE (semana 2, v0.2.0). Cada entrada indica qué se pidió, qué produjo la IA, qué defectos se encontraron, qué decisión tomó el equipo y cómo se verificó.
+Registro de los usos de IA del proyecto. La primera parte cubre el dossier (Módulo 8, sesiones 1 a 3, v0.1.0). La [segunda parte](#semana-2-sesiones-4-a-6--cadena-case-v020) cubre la cadena CASE (semana 2, v0.2.0). La [tercera parte](#semana-3-sesiones-7-a-9--repositorio-gobernado-y-selección-git-vs-svn-v030) cubre el gobierno del repositorio, la matriz Git vs SVN y el ADR de selección (semana 3, v0.3.0). Cada entrada indica qué se pidió, qué produjo la IA, qué defectos se encontraron, qué decisión tomó el equipo y cómo se verificó.
 
 **Herramienta y versión:** Claude Sonnet 5.5 (`claude-sonnet-5-5`), Anthropic, mediante `claude.ai`.
 **Protección de datos:** no se ingresaron credenciales, certificados de firma, RUC reales ni datos de clientes. Solo se compartieron el texto de las actividades y los escenarios del proyecto.
@@ -127,9 +127,30 @@ Registro de los usos de IA del proyecto. La primera parte cubre el dossier (Mód
 | Decisión | **Modificar:** el equipo reasignó los puntajes siguiendo estrictamente la rúbrica. La base quedó en empate entre Spectral y Redocly (3,70), resuelto por el requisito obligatorio de la actividad, y la IA en 2,80 como complemento opcional fuera de la cadena obligatoria. Se precisaron las cifras de concurrencia, se agregó una cuarta regla propia con su prueba negativa, se separaron los dos 409 del contrato y se corrigieron los ejemplos |
 | Verificación | Ejecución de linter y pruebas sin fallas tras los cambios; recálculo de la matriz con un script y revisión completa de los documentos del repositorio |
 
-### Evaluación crítica
+### Evaluación crítica (Semana 2)
 
 - **Donde más aportó la IA:** la revisión semántica del contrato. Encontró los dos errores más graves, que los linters no podían ver porque el archivo era sintácticamente válido. Además, sus hallazgos se pudieron convertir en reglas automáticas de Spectral.
 - **Donde más falló:** el código inicial que generó tenía un defecto de concurrencia que no se ve leyendo el código ni probando con SQLite. Lo detectó una prueba contra PostgreSQL, escrita a partir del criterio de E6. Esto confirma la regla de la sesión: a mayor riesgo, más supervisión del equipo y ejecución real.
 - **Riesgo principal observado:** que una prueba generada con asistencia de IA pase sin probar nada. Se mitigó con la prueba de mutación y con una implementación independiente del módulo 11 en la prueba.
 - **Decisiones propias del equipo:** el alcance del hito (E8, el XML firmado y el frontend quedan en el backlog), la definición de los pesos de la matriz y la selección final de herramientas.
+
+
+## Semana 3 (sesiones 7 a 9) · Repositorio gobernado y selección Git vs SVN (v0.3.0)
+
+**Herramienta y versión:** Claude Opus 5.5 (`claude-opus-5-5`), Anthropic.
+
+**Protección de datos (LOPDP):** no se compartieron tokens personales de GitHub (`PAT`), claves SSH ni credenciales de bases de datos. Toda la configuración de protección de la rama `main`, creación de Issues, apertura de Pull Requests y revisiones cruzadas se ejecutó manualmente desde las cuentas individuales de los cuatro integrantes en GitHub.
+
+### Resumen
+
+| ID | Sesión y tarea | Uso de la IA | Defectos encontrados al verificar | Decisión del equipo |
+|---|---|---|---|---|
+| IA-S7-01 | S7 · Gobierno y plantillas | Borrador de `CONTRIBUTING.md`, plantillas de Issues (`tarea.md`, `bug.md`) y workflow `.github/workflows/ci.yml` | El borrador inicial del workflow CI omitía `PYTHONPATH: src` al invocar `pytest`, lo que impedía resolver el paquete `facturaec` sin instalación editable previa | Modificar |
+| IA-S8-01 | S8 · Matriz Git vs SVN y ADR | Estructuración de `docs/08-matriz-git-vs-svn.md` (7 dimensiones) y del ADR de selección (`adr-004` / `adr-006`) | El borrador proponía sobrescribir `docs/08-matriz-seleccion.md` de la semana 2 y reemplazar el contenido de `adr-004-repositorios-separados.md`, lo que habría roto los enlaces existentes en `01-contexto-y-drivers.md` y `c2-contenedores.md` | Modificar: conservar `08-matriz-seleccion.md`, crear `08-matriz-git-vs-svn.md` y ampliar `adr-004` junto con `adr-006-seleccion-git-vs-svn.md` |
+| IA-S9-01 | S9 · Auditoría de dependencias y reporte de conflicto | Formato de la tabla de revisión de dependencias (`docs/10-gobierno-seguridad-y-dependencias.md`) y estructura de `docs/09-reporte-conflicto.md` | El borrador listaba `openapi-generator-cli` dentro de `pyproject.toml`, cuando en el proyecto se instala como herramienta externa de la cadena CASE y las dependencias declaradas en `pyproject.toml` son 5 de producción y 4 de `dev` | Modificar: ajustar la tabla exactamente a las 9 dependencias declaradas en `pyproject.toml` y separar las herramientas CLI de Node.js |
+
+### Detalle de verificación
+
+1. **Verificación del pipeline CI (`IA-S7-01`):** se ejecutaron localmente los mismos comandos definidos en `.github/workflows/ci.yml` (`ruff check src tests`, `ruff format --check src tests` y `PYTHONPATH=src pytest -q`) comprobando 0 hallazgos de linter y 30 pruebas aprobadas en SQLite antes de subir el flujo a GitHub Actions.
+2. **Verificación de trazabilidad documental (`IA-S8-01`):** se ejecutó `pytest tests/test_documentacion.py` y se revisaron todos los enlaces relativos desde `README.md`, `01-contexto-y-drivers.md` y `06-mapa-toolchain.md` para garantizar que ningún documento previo de las versiones `v0.1.0` y `v0.2.0` perdiera sus referencias.
+3. **Verificación de higiene y secretos (`IA-S9-01`):** se inspeccionó el árbol de archivos y el historial completo con `git status --ignored` y búsqueda de patrones de credenciales (`DATABASE_URL`, `JWT_SECRET`, `.p12`, `.env`), confirmando cero filtraciones en los commits de las tres versiones (`v0.1.0`, `v0.2.0` y `v0.3.0`).

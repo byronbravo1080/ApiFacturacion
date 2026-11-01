@@ -1,11 +1,11 @@
 # FacturaEC · API de facturación electrónica
 
-Sistema web de **facturación electrónica para pequeñas empresas de Ecuador**. Este repositorio contiene el **dossier de arquitectura** ([`docs/`](docs/)) y, desde la versión **v0.2.0**, la **cadena CASE** del proyecto: contrato OpenAPI, historias y criterios en Gherkin, documentación, mock y stubs generados, y un esqueleto ejecutable de la API con sus pruebas.
+Sistema web de **facturación electrónica para pequeñas empresas de Ecuador**. Este repositorio contiene el **dossier de arquitectura** ([`docs/`](docs/)), la **cadena CASE** (**v0.2.0**: contrato OpenAPI, historias y criterios en Gherkin, documentación, mock, stubs y esqueleto ejecutable con pruebas) y, desde **v0.3.0**, el **gobierno del repositorio**, flujo de integración continua en GitHub Actions, matriz comparativa **Git vs SVN**, ADR de selección, reporte de conflicto de fusión y auditoría de dependencias.
 
 Módulo 8 · Automatización de procesos de software · Maestría en Ingeniería en Software, Universidad Politécnica Estatal del Carchi.
 **Integrantes:** Byron Bravo, Jairo Jácome, Jordan Montenegro, Luis Cisneros.
 
-## Cadena CASE (v0.2.0)
+## Cadena CASE y flujo gobernado (v0.2.0 – v0.3.0)
 
 ```mermaid
 flowchart LR
@@ -20,6 +20,7 @@ flowchart LR
     src --> pruebas
     contrato --> conf["Conformidad<br/>test_contrato.py + Prism proxy"]
     src --> conf
+    pruebas --> ci["GitHub Actions CI + PR<br/>Rama main protegida (v0.3.0)"]
 ```
 
 | Documento | Contenido |
@@ -27,16 +28,17 @@ flowchart LR
 | [`docs/01-contexto-y-drivers.md`](docs/01-contexto-y-drivers.md) | Contexto, stakeholders, drivers, escenarios E1–E8 y matriz de estilos (v0.1.0) |
 | [`docs/02-vistas-c4/`](docs/02-vistas-c4/) | Vistas C4 como código (Mermaid) |
 | [`docs/03-adr/`](docs/03-adr/) | ADR-001 a ADR-006 (incluye selección de Git frente a SVN y topología de repositorios) |
-| [`docs/04-registro-ia.md`](docs/04-registro-ia.md) | Registro de uso de IA, con la verificación de cada artefacto |
+| [`docs/04-registro-ia.md`](docs/04-registro-ia.md) | Registro de uso de IA, con la verificación de cada artefacto (Semanas 1 a 3) |
 | [`docs/06-mapa-toolchain.md`](docs/06-mapa-toolchain.md) | Proceso, 10 tareas puntuadas, herramientas por fase y pruebas de herramientas |
 | [`docs/07-historias-y-criterios.md`](docs/07-historias-y-criterios.md) | Historias, criterios en Gherkin y matriz de trazabilidad |
 | [`docs/08-matriz-seleccion.md`](docs/08-matriz-seleccion.md) | Evaluación y selección de herramientas CASE (ISO/IEC 14102) |
 | [`docs/08-matriz-git-vs-svn.md`](docs/08-matriz-git-vs-svn.md) | Matriz comparativa en 7 dimensiones entre Git y Apache Subversion (SVN) |
+| [`docs/09-reporte-conflicto.md`](docs/09-reporte-conflicto.md) | Reporte técnico de conflicto de fusión deliberado, marcadores, resolución y prevención |
 | [`docs/10-gobierno-seguridad-y-dependencias.md`](docs/10-gobierno-seguridad-y-dependencias.md) | Controles de gobierno de ramas, verificación de secretos y auditoría de dependencias |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Flujo de trabajo gobernado, convención de ramas y lista de verificación de PR |
 | [`api/openapi.yaml`](api/openapi.yaml) | Contrato de la API (fuente de verdad) |
 
-## Alcance de v0.2.0
+## Alcance de v0.3.0
 
 **Implementado y probado:**
 
@@ -46,6 +48,7 @@ flowchart LR
 - Secuencial asignado bajo bloqueo de fila, con 0 duplicados en 1000 solicitudes concurrentes (E6).
 - Clave de acceso de 49 dígitos con módulo 11.
 - Envío al SRI mediante un **adaptador simulado**, con 3 intentos y la factura PENDIENTE si el SRI no responde (E2).
+- Gobierno de repositorio en GitHub: rama `main` protegida, plantillas de Issues y Pull Requests, integración continua con Ruff y pytest (`.github/workflows/ci.yml`), matriz comparativa Git vs SVN, ADR de selección y auditoría de dependencias.
 
 **No implementado (backlog, `docs/07`, sección 5.1):**
 
@@ -54,7 +57,6 @@ flowchart LR
 - Inicio de sesión.
 - Nota de crédito.
 - Frontend.
-- Pipeline de CI/CD.
 - Integración real con el SRI.
 
 Los RUC usados en las pruebas son ficticios.
@@ -103,6 +105,10 @@ PYTHONPATH=src uvicorn facturaec.main:crear_app --factory --reload
 
 **Base para la prueba de E6.** Puede ser un PostgreSQL local o una base de Supabase propia. Use una base vacía y exclusiva para pruebas, porque la prueba borra y recrea las tablas. La URI con la clave va solo en la variable de entorno de su máquina: no se escribe en el repositorio ni se comparte con herramientas de IA.
 
+## Cómo contribuir y flujo de ramas
+
+Consulte [`CONTRIBUTING.md`](CONTRIBUTING.md) para conocer las convenciones de nombres de ramas (`feat/issue-<n>-*`, `docs/issue-<n>-*`, `chore/issue-<n>-*`), el formato de commits ([Conventional Commits](https://www.conventionalcommits.org/es/v1.0.0/)), la vinculación obligatoria con Issues (`Closes #n`) y la lista de verificación para revisiones cruzadas de Pull Requests.
+
 ## Versiones
 
-Ver [`CHANGELOG.md`](CHANGELOG.md). Convención de commits: [Conventional Commits](https://www.conventionalcommits.org/es/v1.0.0/).
+Ver [`CHANGELOG.md`](CHANGELOG.md). Hitos etiquetados con SemVer: `v0.1.0` (H1), `v0.2.0` (H2) y `v0.3.0` (H3).
