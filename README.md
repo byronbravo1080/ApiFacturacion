@@ -31,6 +31,8 @@ flowchart LR
 | [`docs/06-mapa-toolchain.md`](docs/06-mapa-toolchain.md) | Proceso, 10 tareas puntuadas, herramientas por fase y pruebas de herramientas |
 | [`docs/07-historias-y-criterios.md`](docs/07-historias-y-criterios.md) | Historias, criterios en Gherkin y matriz de trazabilidad |
 | [`docs/08-matriz-seleccion.md`](docs/08-matriz-seleccion.md) | Evaluación y selección de herramientas (ISO/IEC 14102) |
+| [`docs/10-gobierno-seguridad-y-dependencias.md`](docs/10-gobierno-seguridad-y-dependencias.md) | Controles de gobierno de ramas, verificación de secretos y auditoría de dependencias |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Flujo de trabajo gobernado, convención de ramas y lista de verificación de PR |
 | [`api/openapi.yaml`](api/openapi.yaml) | Contrato de la API (fuente de verdad) |
 
 ## Alcance de v0.2.0
