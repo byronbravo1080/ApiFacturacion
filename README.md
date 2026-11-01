@@ -26,11 +26,12 @@ flowchart LR
 |---|---|
 | [`docs/01-contexto-y-drivers.md`](docs/01-contexto-y-drivers.md) | Contexto, stakeholders, drivers, escenarios E1–E8 y matriz de estilos (v0.1.0) |
 | [`docs/02-vistas-c4/`](docs/02-vistas-c4/) | Vistas C4 como código (Mermaid) |
-| [`docs/03-adr/`](docs/03-adr/) | ADR-001 a ADR-005 (nuevo: contrato API-first y pruebas BDD) |
+| [`docs/03-adr/`](docs/03-adr/) | ADR-001 a ADR-006 (incluye selección de Git frente a SVN y topología de repositorios) |
 | [`docs/04-registro-ia.md`](docs/04-registro-ia.md) | Registro de uso de IA, con la verificación de cada artefacto |
 | [`docs/06-mapa-toolchain.md`](docs/06-mapa-toolchain.md) | Proceso, 10 tareas puntuadas, herramientas por fase y pruebas de herramientas |
 | [`docs/07-historias-y-criterios.md`](docs/07-historias-y-criterios.md) | Historias, criterios en Gherkin y matriz de trazabilidad |
-| [`docs/08-matriz-seleccion.md`](docs/08-matriz-seleccion.md) | Evaluación y selección de herramientas (ISO/IEC 14102) |
+| [`docs/08-matriz-seleccion.md`](docs/08-matriz-seleccion.md) | Evaluación y selección de herramientas CASE (ISO/IEC 14102) |
+| [`docs/08-matriz-git-vs-svn.md`](docs/08-matriz-git-vs-svn.md) | Matriz comparativa en 7 dimensiones entre Git y Apache Subversion (SVN) |
 | [`docs/10-gobierno-seguridad-y-dependencias.md`](docs/10-gobierno-seguridad-y-dependencias.md) | Controles de gobierno de ramas, verificación de secretos y auditoría de dependencias |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Flujo de trabajo gobernado, convención de ramas y lista de verificación de PR |
 | [`api/openapi.yaml`](api/openapi.yaml) | Contrato de la API (fuente de verdad) |
