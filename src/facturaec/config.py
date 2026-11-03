@@ -1,7 +1,24 @@
-"""Configuración leída de variables de entorno (sin credenciales en el código)."""
+"""Configuración leída de variables de entorno o archivo .env (sin credenciales en el código)."""
 
 import os
 from dataclasses import dataclass, field
+from pathlib import Path
+
+
+def _cargar_archivo_env() -> None:
+    """Carga variables desde el archivo .env en la raíz del proyecto si existe."""
+    # Busca .env en la raíz del repositorio
+    raiz = Path(__file__).resolve().parents[2]
+    env_file = raiz / ".env"
+    if env_file.is_file():
+        for linea in env_file.read_text(encoding="utf-8").splitlines():
+            linea = linea.strip()
+            if linea and not linea.startswith("#") and "=" in linea:
+                clave, valor = linea.split("=", 1)
+                os.environ.setdefault(clave.strip(), valor.strip().strip("'\""))
+
+
+_cargar_archivo_env()
 
 
 @dataclass(frozen=True)
@@ -19,6 +36,11 @@ class Settings:
     jwt_minutos: int = field(default_factory=lambda: int(os.getenv("JWT_MINUTOS", "60")))
     sri_simular_caida: bool = field(
         default_factory=lambda: os.getenv("SRI_SIMULAR_CAIDA", "false").lower() == "true"
+    )
+    cors_origins: str = field(
+        default_factory=lambda: os.getenv(
+            "CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000"
+        )
     )
     establecimiento: str = "001"
     punto_emision: str = "001"

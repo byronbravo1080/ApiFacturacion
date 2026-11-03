@@ -10,6 +10,7 @@ from pathlib import Path
 
 import yaml
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from facturaec.config import Settings
 from facturaec.database import Base, crear_engine, crear_sessionmaker
@@ -34,6 +35,17 @@ def crear_app(
         disponible=not settings.sri_simular_caida
     )
     app.state.esperar = esperar
+
+    # Habilitar CORS para permitir llamadas desde el frontend de Next.js u orígenes configurados
+    origins = [orig.strip() for orig in settings.cors_origins.split(",") if orig.strip()]
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins if origins else ["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
     # Las tablas se crean al arrancar; las migraciones con Alembic quedan como evolución (ADR-002).
     Base.metadata.create_all(app.state.engine)
     registrar_manejadores(app)
