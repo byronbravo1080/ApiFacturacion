@@ -34,6 +34,12 @@ class Settings:
         )
     )
     jwt_minutos: int = field(default_factory=lambda: int(os.getenv("JWT_MINUTOS", "60")))
+    sri_gateway_url: str = field(default_factory=lambda: os.getenv("SRI_GATEWAY_URL", ""))
+    supabase_anon_key: str = field(default_factory=lambda: os.getenv("SUPABASE_ANON_KEY", ""))
+    sri_timeout_segundos: float = field(
+        default_factory=lambda: float(os.getenv("SRI_TIMEOUT_SEGUNDOS", "15"))
+    )
+    # Pide al microservicio que simule la caída del SRI, para demostrar E2.
     sri_simular_caida: bool = field(
         default_factory=lambda: os.getenv("SRI_SIMULAR_CAIDA", "false").lower() == "true"
     )

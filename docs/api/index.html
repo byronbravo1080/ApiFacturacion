@@ -3654,8 +3654,8 @@ $(document).ready(function() {
 hasta 3 intentos por solicitud, con esperas de 1 s y 2 s, y una respuesta en 60 s o menos.
 Si el SRI no responde, la factura se conserva en estado PENDIENTE y se responde 202.
 Solo se envían facturas CREADAS o PENDIENTES; una factura AUTORIZADA responde 409 para evitar
-una doble autorización (riesgo 11.2 del dossier). El tiempo máximo de 15 s por intento (E8)
-queda para una versión posterior.
+una doble autorización (riesgo 11.2 del dossier). Cada intento tiene un tiempo máximo de 15 s.
+Si el SRI rechaza el comprobante, no se reintenta, la factura no cambia y se responde 422.
 </p>
                         <p></p>
                         <br />
@@ -4352,6 +4352,86 @@ Identificador de la factura.
                                   </script>
                                 </div>
                                 <input id='responses-Facturas-enviarFacturaSri-409-schema-data' type='hidden' value=''></input>
+                              </div>
+                            </div>
+                            <h3 id="examples-Facturas-enviarFacturaSri-title-422"></h3>
+                            <p id="examples-Facturas-enviarFacturaSri-description-422" class="marked"></p>
+                            <script>
+                              var responseFacturas422_description = `El SRI rechazó el comprobante; la factura no cambia y reenviarla sin corregirla no cambia el resultado.`;
+                              var responseFacturas422_description_break = responseFacturas422_description.indexOf('\n');
+                              if (responseFacturas422_description_break == -1) {
+                                $("#examples-Facturas-enviarFacturaSri-title-422").text("Status: 422 - " + responseFacturas422_description);
+                              } else {
+                                $("#examples-Facturas-enviarFacturaSri-title-422").text("Status: 422 - " + responseFacturas422_description.substring(0, responseFacturas422_description_break));
+                                $("#examples-Facturas-enviarFacturaSri-description-422").html(responseFacturas422_description.substring(responseFacturas422_description_break));
+                              }
+                            </script>
+
+
+                            <ul id="responses-detail-Facturas-enviarFacturaSri-422" class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-Facturas-enviarFacturaSri-422-schema">Schema</a>
+                                </li>
+
+
+
+
+                            </ul>
+
+
+                            <div class="tab-content" id="responses-Facturas-enviarFacturaSri-422-wrapper" style='margin-bottom: 10px;'>
+                              <div class="tab-pane active" id="responses-Facturas-enviarFacturaSri-422-schema">
+                                <div id="responses-Facturas-enviarFacturaSri-schema-422" class="exampleStyle">
+                                  <script>
+                                    $(document).ready(function() {
+                                      var schemaWrapper = {
+  "description" : "El SRI rechazó el comprobante; la factura no cambia y reenviarla sin corregirla no cambia el resultado.",
+  "content" : {
+    "application/json" : {
+      "schema" : {
+        "$ref" : "#/components/schemas/Error"
+      },
+      "example" : {
+        "codigo" : "SRI_RECHAZO",
+        "mensaje" : "El SRI rechazó la factura. El dígito verificador de la clave de acceso no coincide."
+      }
+    }
+  }
+};
+                                      var schema = findNode('schema',schemaWrapper).schema;
+                                      if (!schema) {
+                                        schema = schemaWrapper.schema;
+                                      }
+                                      if (schema == null) {
+                                        return;
+                                      }
+                                      if (schema.$ref != null) {
+                                        schema = defsParser.$refs.get(schema.$ref);
+                                        if (schema.properties != null) {
+                                          Object.keys(schema.properties).forEach( (item) => {
+                                            if (schema.properties[item].$ref != null) {
+                                              schema.properties[item] = defsParser.$refs.get(schema.properties[item].$ref);
+                                            }
+                                          });
+                                        }
+                                      } else if (schema.items != null && schema.items.$ref != null) {
+                                        schema.items = defsParser.$refs.get(schema.items.$ref);
+                                      } else {
+                                        schemaWrapper.definitions = Object.assign({}, defs);
+                                        $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                          console.log(err);
+                                        });
+                                      }
+
+                                      var view = new JSONSchemaView(schema, 3);
+                                      $('#responses-Facturas-enviarFacturaSri-422-schema-data').val(JSON.stringify(schema));
+                                      var result = $('#responses-Facturas-enviarFacturaSri-schema-422');
+                                      result.empty();
+                                      result.append(view.render());
+                                    });
+                                  </script>
+                                </div>
+                                <input id='responses-Facturas-enviarFacturaSri-422-schema-data' type='hidden' value=''></input>
                               </div>
                             </div>
                         </article>

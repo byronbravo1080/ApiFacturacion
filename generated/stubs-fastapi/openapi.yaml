@@ -328,8 +328,8 @@ paths:
         hasta 3 intentos por solicitud, con esperas de 1 s y 2 s, y una respuesta en 60 s o menos.
         Si el SRI no responde, la factura se conserva en estado PENDIENTE y se responde 202.
         Solo se envían facturas CREADAS o PENDIENTES; una factura AUTORIZADA responde 409 para evitar
-        una doble autorización (riesgo 11.2 del dossier). El tiempo máximo de 15 s por intento (E8)
-        queda para una versión posterior.
+        una doble autorización (riesgo 11.2 del dossier). Cada intento tiene un tiempo máximo de 15 s.
+        Si el SRI rechaza el comprobante, no se reintenta, la factura no cambia y se responde 422.
       operationId: enviarFacturaSri
       parameters:
       - description: Identificador de la factura.
@@ -384,6 +384,17 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: La factura ya está autorizada; no se reenvía para evitar una
             doble autorización (riesgo 11.2 del dossier).
+        "422":
+          content:
+            application/json:
+              example:
+                codigo: SRI_RECHAZO
+                mensaje: El SRI rechazó la factura. El dígito verificador de la clave
+                  de acceso no coincide.
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: El SRI rechazó el comprobante; la factura no cambia y reenviarla
+            sin corregirla no cambia el resultado.
       summary: Enviar una factura al SRI
       tags:
       - Facturas
@@ -448,6 +459,17 @@ components:
             $ref: "#/components/schemas/Error"
       description: La factura ya está autorizada; no se reenvía para evitar una doble
         autorización (riesgo 11.2 del dossier).
+    SriRechazo:
+      content:
+        application/json:
+          example:
+            codigo: SRI_RECHAZO
+            mensaje: El SRI rechazó la factura. El dígito verificador de la clave
+              de acceso no coincide.
+          schema:
+            $ref: "#/components/schemas/Error"
+      description: El SRI rechazó el comprobante; la factura no cambia y reenviarla
+        sin corregirla no cambia el resultado.
     DatosInvalidos:
       content:
         application/json:
