@@ -16,9 +16,20 @@ from facturaec.config import Settings
 from facturaec.database import Base, crear_engine, crear_sessionmaker
 from facturaec.errors import registrar_manejadores
 from facturaec.routers import router
-from facturaec.sri_gateway import SriGateway, SriGatewaySimulado
+from facturaec.sri_gateway import SriGateway, SriGatewayHttp
 
 CONTRATO = Path(__file__).resolve().parents[2] / "api" / "openapi.yaml"
+
+
+def _crear_sri_gateway(settings: Settings) -> SriGateway:
+    if not settings.sri_gateway_url:
+        raise RuntimeError("Defina SRI_GATEWAY_URL con la URL del microservicio validacion-SRI.")
+    return SriGatewayHttp(
+        url=settings.sri_gateway_url,
+        clave_api=settings.supabase_anon_key,
+        timeout_segundos=settings.sri_timeout_segundos,
+        simular_caida=settings.sri_simular_caida,
+    )
 
 
 def crear_app(
@@ -29,11 +40,9 @@ def crear_app(
     settings = settings or Settings()
     app = FastAPI(title="FacturaEC API", version="0.2.0")
     app.state.settings = settings
+    app.state.sri_gateway = sri_gateway or _crear_sri_gateway(settings)
     app.state.engine = crear_engine(settings.database_url, settings.db_pool_size)
     app.state.sessionmaker = crear_sessionmaker(app.state.engine)
-    app.state.sri_gateway = sri_gateway or SriGatewaySimulado(
-        disponible=not settings.sri_simular_caida
-    )
     app.state.esperar = esperar
 
     # Habilitar CORS para permitir llamadas desde el frontend de Next.js u orígenes configurados

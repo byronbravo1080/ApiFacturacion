@@ -195,8 +195,8 @@ paths:
         hasta 3 intentos por solicitud, con esperas de 1 s y 2 s, y una respuesta en 60 s o menos.
         Si el SRI no responde, la factura se conserva en estado PENDIENTE y se responde 202.
         Solo se envían facturas CREADAS o PENDIENTES; una factura AUTORIZADA responde 409 para evitar
-        una doble autorización (riesgo 11.2 del dossier). El tiempo máximo de 15 s por intento (E8)
-        queda para una versión posterior.
+        una doble autorización (riesgo 11.2 del dossier). Cada intento tiene un tiempo máximo de 15 s.
+        Si el SRI rechaza el comprobante, no se reintenta, la factura no cambia y se responde 422.
       parameters:
         - $ref: "#/components/parameters/FacturaId"
       responses:
@@ -218,6 +218,8 @@ paths:
           $ref: "#/components/responses/NoEncontrado"
         "409":
           $ref: "#/components/responses/FacturaAutorizada"
+        "422":
+          $ref: "#/components/responses/SriRechazo"
 components:
   securitySchemes:
     bearerAuth:
@@ -278,6 +280,15 @@ components:
           example:
             codigo: CONFLICTO
             mensaje: La factura ya está autorizada.
+    SriRechazo:
+      description: El SRI rechazó el comprobante; la factura no cambia y reenviarla sin corregirla no cambia el resultado.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            codigo: SRI_RECHAZO
+            mensaje: El SRI rechazó la factura. El dígito verificador de la clave de acceso no coincide.
     DatosInvalidos:
       description: Los datos de entrada no cumplen el contrato.
       content:

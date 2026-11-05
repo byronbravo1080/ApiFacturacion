@@ -37,5 +37,5 @@ class BaseFacturasApi:
         self,
         facturaId: Annotated[int, Field(ge=1, description="Identificador de la factura.")],
     ) -> ResultadoEnvio:
-        """Envía la factura al SRI mediante el adaptador SriGateway (HU6, E2). Política de reintentos: hasta 3 intentos por solicitud, con esperas de 1 s y 2 s, y una respuesta en 60 s o menos. Si el SRI no responde, la factura se conserva en estado PENDIENTE y se responde 202. Solo se envían facturas CREADAS o PENDIENTES; una factura AUTORIZADA responde 409 para evitar una doble autorización (riesgo 11.2 del dossier). El tiempo máximo de 15 s por intento (E8) queda para una versión posterior. """
+        """Envía la factura al SRI mediante el adaptador SriGateway (HU6, E2). Política de reintentos: hasta 3 intentos por solicitud, con esperas de 1 s y 2 s, y una respuesta en 60 s o menos. Si el SRI no responde, la factura se conserva en estado PENDIENTE y se responde 202. Solo se envían facturas CREADAS o PENDIENTES; una factura AUTORIZADA responde 409 para evitar una doble autorización (riesgo 11.2 del dossier). Cada intento tiene un tiempo máximo de 15 s. Si el SRI rechaza el comprobante, no se reintenta, la factura no cambia y se responde 422. """
         ...
