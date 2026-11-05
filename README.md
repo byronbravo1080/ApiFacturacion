@@ -47,8 +47,7 @@ flowchart LR
 - Facturas con IVA (0 %, 5 % y 15 %).
 - Secuencial asignado bajo bloqueo de fila, con 0 duplicados en 1000 solicitudes concurrentes (E6).
 - Clave de acceso de 49 dígitos con módulo 11.
-- Envío al SRI mediante un **adaptador simulado**, con 3 intentos y la factura PENDIENTE si el SRI no responde (E2).
-- Gobierno de repositorio en GitHub: rama `main` protegida, plantillas de Issues y Pull Requests, integración continua con Ruff y pytest (`.github/workflows/ci.yml`), matriz comparativa Git vs SVN, ADR de selección y auditoría de dependencias.
+
 
 **No implementado (backlog, `docs/07`, sección 5.1):**
 
@@ -81,13 +80,22 @@ npm install -g @stoplight/spectral-cli @stoplight/prism-cli @redocly/cli
 
 ## Ejecutar la API
 
+La API necesita la URL del microservicio [`validacion-SRI`](https://github.com/david5543/validacion-SRI). Defínala en un archivo `.env`, que no se versiona:
+
 ```bash
-PYTHONPATH=src uvicorn facturaec.main:crear_app --factory --reload
+SRI_GATEWAY_URL=https://<PROJECT_REF>.supabase.co/functions/v1/sri-gateway
+SUPABASE_ANON_KEY=<clave anónima del proyecto de Supabase>
+```
+
+```bash
+PYTHONPATH=src uvicorn facturaec.main:crear_app --factory --reload --env-file .env
 ```
 
 - `http://localhost:8000/docs` muestra el contrato `api/openapi.yaml` (no el que infiere FastAPI).
+- Sin `SRI_GATEWAY_URL`, la API no arranca.
 - Sin `DATABASE_URL`, la API usa SQLite (`facturaec.db`).
-- Para simular la caída del SRI (E2), arranque con `SRI_SIMULAR_CAIDA=true`.
+- Para simular la caída del SRI (E2), defina `SRI_SIMULAR_CAIDA=true`: la API se lo pide al microservicio.
+- `SRI_TIMEOUT_SEGUNDOS` fija el tiempo máximo por intento (15 s por defecto).
 - En producción, defina `JWT_SECRET`.
 
 ## Comandos de la cadena

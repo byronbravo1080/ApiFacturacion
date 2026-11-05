@@ -94,6 +94,7 @@ async def obtener_factura(
         401: {"model": Error, "description": "Falta el token o no es válido (E1)."},
         404: {"model": Error, "description": "El recurso no existe o pertenece a otro emisor; no se revela cuál de los dos casos ocurre (E1)."},
         409: {"model": Error, "description": "La factura ya está autorizada; no se reenvía para evitar una doble autorización (riesgo 11.2 del dossier)."},
+        422: {"model": Error, "description": "El SRI rechazó el comprobante; la factura no cambia y reenviarla sin corregirla no cambia el resultado."},
     },
     tags=["Facturas"],
     summary="Enviar una factura al SRI",
@@ -105,7 +106,7 @@ async def enviar_factura_sri(
         get_token_bearerAuth
     ),
 ) -> ResultadoEnvio:
-    """Envía la factura al SRI mediante el adaptador SriGateway (HU6, E2). Política de reintentos: hasta 3 intentos por solicitud, con esperas de 1 s y 2 s, y una respuesta en 60 s o menos. Si el SRI no responde, la factura se conserva en estado PENDIENTE y se responde 202. Solo se envían facturas CREADAS o PENDIENTES; una factura AUTORIZADA responde 409 para evitar una doble autorización (riesgo 11.2 del dossier). El tiempo máximo de 15 s por intento (E8) queda para una versión posterior. """
+    """Envía la factura al SRI mediante el adaptador SriGateway (HU6, E2). Política de reintentos: hasta 3 intentos por solicitud, con esperas de 1 s y 2 s, y una respuesta en 60 s o menos. Si el SRI no responde, la factura se conserva en estado PENDIENTE y se responde 202. Solo se envían facturas CREADAS o PENDIENTES; una factura AUTORIZADA responde 409 para evitar una doble autorización (riesgo 11.2 del dossier). Cada intento tiene un tiempo máximo de 15 s. Si el SRI rechaza el comprobante, no se reintenta, la factura no cambia y se responde 422. """
     if not BaseFacturasApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
     return await BaseFacturasApi.subclasses[0]().enviar_factura_sri(facturaId)

@@ -1,6 +1,6 @@
 # language: es
 # Historias HU6 y HU7 · Escenario de calidad E2 (fiabilidad ante la indisponibilidad del SRI) · Driver D2
-# El SRI se reemplaza por el adaptador simulado SriGatewaySimulado (ADR-003); no se contacta al SRI real.
+# El SRI se reemplaza por un doble de prueba del puerto SriGateway (ADR-003); no se usa la red.
 
 @HU6 @HU7 @E2
 Característica: Envío de facturas al SRI sin perder comprobantes

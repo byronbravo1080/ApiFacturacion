@@ -50,6 +50,7 @@ En cumplimiento de la Instrucción 6 de la actividad y de la práctica **PW.4** 
 | `pyjwt` | `>=2.9,<3.0` | `2.11.0` | MIT | Emisión y verificación de tokens JWT (`HS256`) para el aislamiento entre emisores (`E1`) | Revisada · Clave de firma con longitud >= 32 bytes en pruebas |
 | `pyyaml` | `>=6.0,<7.0` | `6.0.3` | MIT | Carga segura (`yaml.safe_load`) del contrato `api/openapi.yaml` | Revisada · Se usa exclusivamente `safe_load`, evitando ejecución arbitraria |
 | `psycopg[binary]` | `>=3.2,<4.0` | `3.3.6` | LGPL-3.0 | Adaptador PostgreSQL 16 para la prueba de concurrencia `CA5.3` (`E6`) | Revisada · Compatible con despliegue en contenedor |
+| `httpx` | `>=0.27,<1.0` | `0.28.1` | BSD-3-Clause | Cliente HTTP del adaptador `SriGatewayHttp` hacia el microservicio `validacion-SRI` y de `TestClient` en las pruebas | Pasa de desarrollo a ejecución · Se usa con tiempo máximo explícito por intento |
 
 ### 3.2 Dependencias de desarrollo y verificación (`[project.optional-dependencies.dev]`)
 
@@ -57,7 +58,6 @@ En cumplimiento de la Instrucción 6 de la actividad y de la práctica **PW.4** 
 |---|---|---|---|---|---|
 | `pytest` | `>=8.3,<10.0` | `9.1.1` | MIT | Ejecución de pruebas automatizadas y de conformidad (`T7`) | Revisada · Solo entorno de pruebas |
 | `pytest-bdd` | `>=7.3,<10.0` | `9.0.0` | MIT | Ejecución directa de escenarios Gherkin en español (`ADR-005`, `T7`) | Revisada · Solo entorno de pruebas |
-| `httpx` | `>=0.27,<1.0` | `0.28.1` | BSD-3-Clause | Cliente HTTP para `TestClient` de FastAPI en las pruebas de aceptación | Revisada · Solo entorno de pruebas |
 | `ruff` | `>=0.6,<1.0` | `0.17.2` | MIT | Linter, formateador y analizador estático de seguridad (`reglas S / flake8-bandit`, `T8`) | Revisada · Incluye reglas de seguridad estática activas |
 
 ---

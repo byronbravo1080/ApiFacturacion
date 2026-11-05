@@ -18,7 +18,7 @@ from facturaec.config import Settings
 from facturaec.errors import ApiError, no_encontrado
 from facturaec.models import Cliente, DetalleFactura, Emisor, Factura, Producto
 from facturaec.schemas import FacturaNueva
-from facturaec.sri_gateway import SriGateway, SriNoDisponibleError
+from facturaec.sri_gateway import SriGateway, SriNoDisponibleError, SriRechazoError
 
 CENTAVO = Decimal("0.01")
 MAX_INTENTOS = 3
@@ -139,6 +139,10 @@ def enviar_al_sri(
             if intento < MAX_INTENTOS:
                 esperar(ESPERAS_SEGUNDOS[intento - 1])
             continue
+        except SriRechazoError as error:
+            # Reintentar no cambiaría el resultado: la factura queda como estaba.
+            db.rollback()
+            raise ApiError(422, "SRI_RECHAZO", f"El SRI rechazó la factura. {error}") from error
         factura.estado = "AUTORIZADA"
         db.commit()
         return factura, intento, "Factura autorizada por el SRI."

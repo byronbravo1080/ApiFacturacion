@@ -225,7 +225,7 @@ Característica: Envío de facturas al SRI sin perder comprobantes
     Y la consulta muestra 3 intentos de envío
 ```
 
-El SRI se reemplaza por el adaptador `SriGatewaySimulado` (ADR-003); no se contacta al SRI real. En CA6.2 las esperas de 1 s y 2 s se verifican con un reloj simulado que registra las esperas pedidas, para no detener la prueba. Por eso el límite de 60 s se comprueba sobre una ejecución que dura menos de un segundo. Con esperas reales, la respuesta tardaría unos 3 s. CA6.4 cubre el riesgo de doble autorización de la sección 11.2 del dossier.
+En las pruebas, el SRI se reemplaza por un doble de prueba del puerto `SriGateway` (ADR-003); no se usa la red. En ejecución, la API llama al microservicio `validacion-SRI`, que simula la validación del SRI; no se contacta al SRI real. En CA6.2 las esperas de 1 s y 2 s se verifican con un reloj simulado que registra las esperas pedidas, para no detener la prueba. Por eso el límite de 60 s se comprueba sobre una ejecución que dura menos de un segundo. Con esperas reales, la respuesta tardaría unos 3 s. CA6.4 cubre el riesgo de doble autorización de la sección 11.2 del dossier.
 
 ## 4. Revisión con la lista de ISO/IEC/IEEE 29148
 
