@@ -75,6 +75,7 @@ class DetalleNuevo(Esquema):
 class FacturaNueva(Esquema):
     cliente_id: int = Field(ge=1)
     detalles: list[DetalleNuevo] = Field(min_length=1, max_length=100)
+    simular_rechazo: bool = False
 
 
 class Detalle(Esquema):

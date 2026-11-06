@@ -87,6 +87,18 @@ def crear_factura(db: Session, emisor_id: int, datos: FacturaNueva, settings: Se
     emisor.ultimo_secuencial += 1
     secuencial = emisor.ultimo_secuencial
     fecha = datetime.now(ZONA_ECUADOR).date()
+    clave_generada = clave_acceso.generar(
+        fecha=fecha,
+        ruc=emisor.ruc,
+        ambiente=settings.ambiente_sri,
+        establecimiento=settings.establecimiento,
+        punto_emision=settings.punto_emision,
+        secuencial=secuencial,
+        codigo_numerico=secrets.randbelow(10**8),
+    )
+    if getattr(datos, "simular_rechazo", False):
+        ultimo = clave_generada[-1]
+        clave_generada = clave_generada[:-1] + ("0" if ultimo != "0" else "9")
 
     factura = Factura(
         emisor_id=emisor_id,
@@ -94,15 +106,7 @@ def crear_factura(db: Session, emisor_id: int, datos: FacturaNueva, settings: Se
         establecimiento=settings.establecimiento,
         punto_emision=settings.punto_emision,
         secuencial=secuencial,
-        clave_acceso=clave_acceso.generar(
-            fecha=fecha,
-            ruc=emisor.ruc,
-            ambiente=settings.ambiente_sri,
-            establecimiento=settings.establecimiento,
-            punto_emision=settings.punto_emision,
-            secuencial=secuencial,
-            codigo_numerico=secrets.randbelow(10**8),
-        ),
+        clave_acceso=clave_generada,
         fecha_emision=fecha,
         estado="CREADA",
         subtotal=subtotal_total,
