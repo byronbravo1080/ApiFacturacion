@@ -20,15 +20,15 @@ El sistema resuelve la necesidad crítica de emitir comprobantes tributarios (fa
 
 ### Alcance Entregado (`v0.3.0` / Hito H3)
 * **API REST Backend:** Desarrollada con **FastAPI** en Python 3.12 y persistencia en **PostgreSQL**, siguiendo principios de arquitectura hexagonal y diseño *API-First*.
-* **Microservicio SRI (`servicioSri`):** Gateway de validación y simulación de contingencia implementado como Supabase Edge Function en TypeScript.
-* **Aplicación Cliente (`frontFacturacion`):** Interfaz web moderna en **Next.js 16 (React 19)** con Tailwind CSS, integrada en tiempo real contra la API y desplegada en producción.
+* **Microservicio SRI ([`servicioSri` / `validacion-SRI`](https://github.com/david5543/validacion-SRI)):** Gateway de validación y simulación de contingencia implementado como Supabase Edge Function en TypeScript.
+* **Aplicación Cliente ([`frontFacturacion`](https://github.com/Jorel22/frontFacturacionUpec)):** Interfaz web moderna en **Next.js 16 (React 19)** con Tailwind CSS, integrada en tiempo real contra la API y desplegada en producción.
 * **Cadena CASE y Pipeline CI:** Automatización punta a punta con GitHub Actions, validación sintáctica/semántica con Spectral, generación de documentación con Redocly, análisis estático con Ruff y pruebas BDD con pytest.
 
 ---
 
 ## 2. Arquitectura de Software: Drivers, Escenarios y ADRs
 
-La arquitectura se fundamentó en el análisis estructurado de drivers y escenarios de calidad priorizados en el dossier del proyecto ([`docs/01-contexto-y-drivers.md`](01-contexto-y-drivers.md)):
+La arquitectura se fundamentó en el análisis estructurado de drivers y escenarios de calidad priorizados en el dossier del proyecto ([`docs/01-contexto-y-drivers.md`](01-contexto-y-drivers.md)), cuya correspondencia punta a punta con el código, las pruebas y los Quality Gates de CI se consolida en la matriz de trazabilidad ([`docs/05-trazabilidad.md`](05-trazabilidad.md)):
 
 ### 2.1. Drivers del Negocio y Técnicos
 * **D1 (Cumplimiento Regulatorio):** Apego estricto a las normas de comprobantes electrónicos del SRI (catálogo de documentos, tarifas de IVA 0%, 5%, 15% y Módulo 11).

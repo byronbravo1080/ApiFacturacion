@@ -262,6 +262,9 @@ En las pruebas, el SRI se reemplaza por un doble de prueba del puerto `SriGatewa
 | HU11 | Como equipo de desarrollo, quiero agregar la nota de crédito reutilizando la clave de acceso y el adaptador del SRI, para ampliar los comprobantes con poco esfuerzo. | E4 | Fuera del alcance de la primera versión (sección 1.3 del dossier) |
 | HU12 | Como dueño de una pequeña empresa sin formación técnica, quiero emitir mi primera factura en 3 minutos o menos, para empezar a usar el sistema sin ayuda. | E7 | Necesita el frontend (repositorio `facturaec-frontend`) |
 
+> [!NOTE]
+> **Actualización Entrega Final (v0.3.0):** Las historias **HU10** (autenticación y gestión de sesión) y **HU12** (emisión asistida de facturas en menos de 3 minutos sin formación técnica) quedaron formalmente cubiertas e integradas a través de la aplicación cliente frontend en Next.js 16 ([`frontFacturacion`](https://github.com/Jorel22/frontFacturacionUpec)), conectada en tiempo real a la API y a Supabase PostgreSQL.
+
 ## 6. Gestión de trazabilidad y evolución hacia GitHub Issues / Projects
 
 En el mapa de toolchain ([`06-mapa-toolchain.md`](06-mapa-toolchain.md)), la fase *Analizar* asigna como herramienta candidata **GitHub Issues y Projects** junto con **Gherkin** (tarea `T2`, 27 puntos, prioridad Media). Dado que `T2` no forma parte de las tres tareas de mayor puntaje priorizadas para la prueba de herramientas (`T7`, `T4` y `T6`), en `v0.2.0` la trazabilidad completa se consolida directamente en la matriz de la sección 5 de este documento y en las etiquetas `@HU`, `@CA` y `@E` de los archivos `.feature`. Para los hitos posteriores de integración continua, cada historia del backlog (`HU8` a `HU12`) se gestionará como issue individual enlazado mediante la plantilla [`.github/pull_request_template.md`](../.github/pull_request_template.md).
