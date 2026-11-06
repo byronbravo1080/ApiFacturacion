@@ -19,7 +19,7 @@ El sistema resuelve la necesidad crítica de emitir comprobantes tributarios (fa
 4. **Numeración secuencial íntegra bajo concurrencia** sin saltos ni comprobantes duplicados.
 
 ### Alcance Entregado (`v0.3.0` / Hito H3)
-* **API REST Backend:** Desarrollada con **FastAPI** en Python 3.12 y persistencia en **PostgreSQL**, siguiendo principios de arquitectura hexagonal y diseño *API-First*.
+* **API REST Backend:** Desarrollada con **FastAPI** en Python 3.12 y persistencia en **PostgreSQL**, siguiendo el estilo de **monolito modular** con diseño *API-First* y adaptador desacoplado para el SRI (ADR-003).
 * **Microservicio SRI ([`servicioSri` / `validacion-SRI`](https://github.com/david5543/validacion-SRI)):** Gateway de validación y simulación de contingencia implementado como Supabase Edge Function en TypeScript.
 * **Aplicación Cliente ([`frontFacturacion`](https://github.com/Jorel22/frontFacturacionUpec)):** Interfaz web moderna en **Next.js 16 (React 19)** con Tailwind CSS, integrada en tiempo real contra la API y desplegada en producción.
 * **Cadena CASE y Pipeline CI:** Automatización punta a punta con GitHub Actions, validación sintáctica/semántica con Spectral, generación de documentación con Redocly, análisis estático con Ruff y pruebas BDD con pytest.
@@ -45,7 +45,7 @@ La arquitectura se fundamentó en el análisis estructurado de drivers y escenar
 * [`ADR-001`](03-adr/adr-001-backend-fastapi.md): Selección de **FastAPI** por su tipado estricto con Pydantic, soporte asíncrono y generación nativa de esquemas OpenAPI.
 * [`ADR-002`](03-adr/adr-002-base-de-datos-postgresql.md): Adopción de **PostgreSQL** con bloqueo pesimista de fila (`with_for_update()`) sobre el emisor y restricción única compuesta (`emisor_id, establecimiento, punto_emision, secuencial`) para blindar el escenario E6.
 * [`ADR-003`](03-adr/adr-003-estilo-monolito-modular.md): Desacoplamiento del servicio de validación SRI mediante un microservicio simulador (`SriGatewayHttp`) que aísla las respuestas definitivas (`AUTORIZADA` y `RECHAZADA`) de las fallas transitorias de red.
-* [`ADR-004`](03-adr/adr-004-repositorios-separados.md): Separación de repositorios entre API (`ApiFacturacion`), Gateway (`servicioSri`) y Frontend (`frontFacturacion`), facilitando despliegues independientes en Render, Supabase y Vercel.
+* [`ADR-004`](03-adr/adr-004-repositorios-separados.md): Selección de **Git frente a Apache Subversion (SVN)** y organización en repositorios independientes para backend (`ApiFacturacion`) y frontend (`frontFacturacion`), facilitando despliegues desacoplados (Render y Vercel).
 * [`ADR-005`](03-adr/adr-005-contrato-api-first-y-pruebas-bdd.md): Adopción del paradigma *Design-First / API-First* con validación obligatoria en Spectral y pruebas de aceptación BDD con pytest-bdd.
 * [`ADR-006`](03-adr/adr-006-seleccion-git-vs-svn.md): Selección justificada de **Git frente a SVN** en 7 dimensiones (ramificación local, criptografía inmutable, CI/CD distribuido).
 
@@ -109,7 +109,7 @@ El flujo de integración continua está implementado en [`.github/workflows/ci.y
 4. **Gate 4 · pytest (T7):** Ejecuta la suite de pruebas BDD con Gherkin, las pruebas de transporte del SRI y la prueba de conformidad OpenAPI (`test_contrato.py`).
 
 ### 5.3. Evidencia de Falla Provocada y Corregida
-* **Falla provocada:** Al incorporar las operaciones de listado (`GET /clientes`, `GET /productos`, `GET /facturas`) en `routers.py`, se omitió inicialmente su declaración en `api/openapi.yaml`.
+* **Falla provocada:** Conforme exige la rúbrica de la actividad, se provocó deliberadamente una discrepancia entre código y contrato: al incorporar las operaciones de listado (`GET /clientes`, `GET /productos`, `GET /facturas`) en `routers.py`, se omitió intencionalmente su declaración en `api/openapi.yaml`.
 * **Detección en CI:** El pipeline de GitHub Actions se bloqueó automáticamente en el Quality Gate 4; la prueba `test_contrato.py` falló al detectar que el código exponía rutas no autorizadas por el contrato (`operaciones_del_codigo != operaciones_del_contrato`).
 * **Protección de rama activa:** GitHub impidió la fusión (*merge blocked*) debido al check en rojo.
 * **Corrección:** Se sincronizó `api/openapi.yaml` declarando las 3 operaciones y el parámetro `simular_rechazo` (commit `b87bdfb`). Al subir el cambio, el pipeline se ejecutó nuevamente, superó los 4 Quality Gates en verde y habilitó la fusión hacia `main` (PR #25 / PR #27).
@@ -118,7 +118,7 @@ El flujo de integración continua está implementado en [`.github/workflows/ci.y
 
 ## 6. Métricas Aproximadas Tipo DORA
 
-Conforme a las directrices de *Accelerate* (Forsgren et al., 2018), se calcularon las 4 métricas DORA a partir del historial real de **46 commits en `main`** y **14 Pull Requests fusionados (del PR #9 al PR #27)** en la ventana activa de GitHub Flow (del 31/10/2026 al 06/11/2026):
+Conforme a las directrices de *Accelerate* (Forsgren et al., 2018), se calcularon las 4 métricas DORA a partir del historial real de **46 commits en `main`** y **13 Pull Requests fusionados (del PR #9 al PR #27)** en la ventana activa de GitHub Flow (del 31/10/2026 al 06/11/2026):
 
 ### 6.1. Definición y Fórmulas de Cálculo
 
@@ -126,7 +126,7 @@ $$\text{Deployment Frequency (DF)} = \frac{\text{Total de despliegues/fusiones a
 
 $$\text{Lead Time for Changes (LTTC)} = \frac{\sum (\text{Hora de fusión a main} - \text{Hora del primer commit de la rama})}{\text{Total de Pull Requests}}$$
 
-$$\text{Change Failure Rate (CFR)} = \frac{\text{Número de PRs que provocaron fallas en CI o requirieron rollback}}{\text{Total de ejecuciones de PR en CI}} \times 100$$
+$$\text{Change Failure Rate (CFR)} = \frac{\text{Número de PRs que provocaron fallas en CI o requirieron rollback}}{\text{Total de Pull Requests evaluados en CI}} \times 100$$
 
 $$\text{Failed Deployment Recovery Time (MTTR)} = \frac{\sum (\text{Hora del commit de resolución} - \text{Hora del fallo reportado})}{\text{Total de incidentes}}$$
 
@@ -134,10 +134,17 @@ $$\text{Failed Deployment Recovery Time (MTTR)} = \frac{\sum (\text{Hora del com
 
 | Métrica DORA | Valor Calculado en el Proyecto | Clasificación de Desempeño | Justificación y Fuente de Datos (`git log` / Actions) |
 |---|:---:|:---:|---|
-| **Frecuencia de Despliegue (DF)** | **2,0 deploys / día**<br>(14 fusiones / 7 días) | **Élite (Elite)** | 14 Pull Requests fusionados a la rama `main` en 7 días calendario de actividad de PRs (del PR #9 el 31/10 al PR #27 el 06/11). |
+| **Frecuencia de Despliegue (DF)** | **1,86 deploys / día**<br>(13 fusiones / 7 días) | **Élite (Elite)** | 13 Pull Requests fusionados a la rama `main` en 7 días calendario de actividad de PRs (del PR #9 el 31/10 al PR #27 el 06/11). |
 | **Tiempo de Entrega de Cambios (LTTC)** | **≈ 24 minutos**<br>(Mediana ≈ 4 min) | **Élite (Elite)** | Tiempo medio desde el primer commit en la rama hasta su fusión en `main`. El valor máximo registrado fue de 194 min en el PR #21 (microservicio SRI). |
-| **Tasa de Fallos en Cambios (CFR)** | **7,7 %**<br>(1 fallo en 13 ejecuciones) | **Élite (Elite)** | Solo 1 ejecución de Pull Request reportó falla en los Quality Gates de CI (la discrepancia intencional del contrato), cumpliendo el rango élite (<15%). |
-| **Tiempo de Recuperación de Fallos (MTTR)** | **≈ 8 minutos** | **Élite (Elite)** | Tiempo exacto entre el registro de la falla en `test_contrato.py` (04:50 UTC) y el commit de corrección `b87bdfb` verificado en verde (04:57 UTC). |
+| **Tasa de Fallos en Cambios (CFR)** | **9,1 %**<br>(1 fallo en 11 PRs con CI) | **Élite (Elite)** | Solo 1 Pull Request evaluado por el pipeline reportó falla en los Quality Gates (la discrepancia deliberada del contrato en el PR #25), manteniéndose dentro del umbral élite (<15%). |
+| **Tiempo de Recuperación de Fallos (MTTR)** | **≈ 8 minutos**<br>(7 min 40 s) | **Élite (Elite)** | Tiempo exacto entre el registro de la falla en el Quality Gate 4 (04:50:44 UTC) y la verificación en verde del commit de corrección `b87bdfb` (04:58:24 UTC). |
+
+### 6.3. Análisis Crítico y Limitaciones de las Métricas
+
+Conforme a las directrices de evaluación de procesos de software, la interpretación de las métricas DORA en este proyecto presenta tres consideraciones metodológicas:
+* **Fusión a `main` como proxy de despliegue (*Deployment Proxy*):** Al no contar con una fase de despliegue continuo (CD) hacia un clúster de infraestructura productiva empresarial, la métrica DF adopta la integración validada en la rama protegida `main` como un proxy fidedigno de entrega de valor lista para producción.
+* **Falla en pipeline CI vs. Falla en Producción (*Change Failure*):** La tasa CFR evalúa los bloqueos detectados por los Quality Gates automáticos en ramas de Pull Request antes del merge. Esto demuestra que los controles automatizados (Spectral y pytest) capturan defectos antes de que contaminen la rama troncal.
+* **Ventana muestral acotada:** La muestra de 13 PRs y 7 días corresponde a un ciclo intensivo de desarrollo bajo gobernanza. Aunque los indicadores se ubican en el percentil Élite de *Accelerate*, deben interpretarse dentro del contexto de un equipo de 4 integrantes con alcance delimitado.
 
 ---
 

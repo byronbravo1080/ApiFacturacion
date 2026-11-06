@@ -159,7 +159,7 @@ Registro de los usos de IA del proyecto. La primera parte cubre el dossier (Mód
 
 ## Semana 4 (sesiones 10 a 12) · Automatización, Pipeline CI y Gobernanza Final (v0.3.0 / Entrega Final)
 
-**Herramientas y versiones:** Claude 3.5 Sonnet y Google Antigravity Agent.  
+**Herramientas y versiones:** Claude 3.5 Sonnet (versión 20241022) y Google Antigravity Agent (v2.0 / preview 2026).  
 **Protección de datos (LOPDP / NIST SSDF):** No se ingresaron credenciales, certificados `.p12`, contraseñas ni RUC de contribuyentes reales. Las pruebas se realizaron contra el esquema de pruebas del SRI (`ambiente: 1`), claves de acceso matemáticas de prueba y base de datos con aislamiento multi-inquilino.
 
 ### Resumen de Interacciones
@@ -168,7 +168,7 @@ Registro de los usos de IA del proyecto. La primera parte cubre el dossier (Mód
 |---|---|---|---|---|
 | **IA-S10-02** | S10 · Sincronización y Simulación SRI | Endpoints de consulta (`GET /clientes`, `GET /productos`, `GET /facturas`) y parámetro `simular_rechazo` | El borrador inicial del código implementaba las rutas en FastAPI pero omitía su declaración en `api/openapi.yaml`, provocando la falla en `test_contrato.py` | Modificar: sincronizar el contrato `openapi.yaml` declarando las 11 operaciones y esquemas antes de subir a CI |
 | **IA-S11-01** | S11 · Automatización CI (`ci.yml`) | Estructuración del pipeline automatizado en GitHub Actions con Quality Gates | El primer borrador de la IA utilizaba etiquetas flotantes (`@v4`, `@v5`) y carecía del bloque explícito de permisos mínimos | Modificar: fijar versiones exactas inmutables (`@v4.2.2`, `@v4.2.0`, `@v5.3.0`) y aplicar `permissions: contents: read` |
-| **IA-S11-02** | S11 · Trazabilidad y Métricas DORA | Elaboración de `docs/05-trazabilidad.md` y estructura analítica de `docs/09-informe-final.md` | El cálculo preliminar de la IA asumía estimaciones desfasadas (27 commits y 10 PRs) en lugar de auditar el log real | Modificar: recalcular métricas DORA con el historial verificado de git log y Actions (46 commits en main, 14 PRs fusionados del 31/10 al 06/11, LTTC ≈ 24 min, MTTR ≈ 8 min, CFR 7,7%) |
+| **IA-S11-02** | S11 · Trazabilidad y Métricas DORA | Elaboración de `docs/05-trazabilidad.md` y estructura analítica de `docs/09-informe-final.md` | El cálculo preliminar de la IA asumía estimaciones desfasadas (27 commits y 10 PRs) en lugar de auditar el log real | Modificar: recalcular métricas DORA con el historial verificado de git log y Actions (46 commits en main, 13 PRs fusionados del 31/10 al 06/11, 11 PRs evaluados en CI, LTTC ≈ 24 min, MTTR 7 min 40 s ≈ 8 min, CFR 9,1%) |
 
 ---
 
