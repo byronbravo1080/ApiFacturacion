@@ -45,7 +45,7 @@ La evaluación detallada de las siete dimensiones (modelo, historial, ramas, tra
    - Historial atómico con **Conventional Commits 1.0.0** y versiones etiquetadas con **SemVer** alineadas a los hitos (`v0.1.0`, `v0.2.0` y `v0.3.0`).
 2. **Organizar el sistema en dos repositorios Git**:
    - `ApiFacturacion` (`facturaec-backend`): API FastAPI, contrato `api/openapi.yaml`, `docs/` (dossier, cadena CASE y gobierno), pruebas BDD (`tests/`) y workflow de CI.
-   - `facturaec-frontend`: aplicación Next.js (en hito posterior).
+   - `frontFacturacion` (`facturaec-frontend`): aplicación cliente en Next.js 16 (React 19) desplegada en Vercel e integrada en tiempo real a la API y Supabase.
 
 ## Consecuencias
 

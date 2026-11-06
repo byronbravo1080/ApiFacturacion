@@ -241,14 +241,14 @@ En las pruebas, el SRI se reemplaza por un doble de prueba del puerto `SriGatewa
 
 | Historia | Escenario | Criterios | Endpoint (operationId) | ADR | Prueba ejecutable |
 |---|---|---|---|---|---|
-| HU1 | E1 | CA1.1, CA1.2 | `registrarEmisor` | ADR-001, ADR-005 | `test_registro_y_aislamiento.py` |
-| HU2 | E1 | CA2.1, CA2.2, CA2.3 | `registrarCliente`, `obtenerCliente` | ADR-001, ADR-002 | `test_registro_y_aislamiento.py` |
-| HU3 | E7 (indirecto) | CA3.1, CA3.2 | `registrarProducto` | ADR-001 | `test_facturacion.py` |
-| HU4 | E3 (indirecto) | CA4.1 | `crearFactura` | ADR-001, ADR-003 | `test_facturacion.py` |
-| HU5 | E6 | CA5.1, CA5.2, CA5.3 | `crearFactura` | ADR-002, ADR-003 | `test_facturacion.py` |
-| HU6 | E2 | CA6.1, CA6.2, CA6.3, CA6.4 | `enviarFacturaSri` | ADR-003 | `test_envio_sri.py` |
-| HU7 | E2 | CA7.1 | `obtenerFactura` | ADR-003 | `test_envio_sri.py` |
-| — | — | Conformidad contrato ↔ código | las 8 operaciones | ADR-005 | `test_contrato.py` |
+| HU1 | E1 | CA1.1, CA1.2 | `registrarEmisor` | ADR-001, ADR-002, ADR-005 | `test_registro_y_aislamiento.py` |
+| HU2 | E1 | CA2.1, CA2.2, CA2.3 | `registrarCliente`, `obtenerCliente`, `listarClientes` | ADR-001, ADR-002, ADR-005 | `test_registro_y_aislamiento.py` |
+| HU3 | E7 (indirecto) | CA3.1, CA3.2 | `registrarProducto`, `listarProductos` | ADR-001, ADR-002, ADR-005 | `test_facturacion.py` |
+| HU4 | E3 (indirecto) | CA4.1 | `crearFactura` | ADR-001, ADR-002, ADR-003 | `test_facturacion.py` |
+| HU5 | E6 | CA5.1, CA5.2, CA5.3 | `crearFactura` | ADR-001, ADR-002, ADR-003 | `test_facturacion.py` |
+| HU6 | E2 | CA6.1, CA6.2, CA6.3, CA6.4 | `enviarFacturaSri` | ADR-001, ADR-002, ADR-003 | `test_envio_sri.py` |
+| HU7 | E2 | CA7.1 | `obtenerFactura`, `listarFacturas` | ADR-001, ADR-003, ADR-005 | `test_envio_sri.py` |
+| — | — | Conformidad contrato ↔ código | las 11 operaciones | ADR-005 | `test_contrato.py` |
 
 **Trazabilidad hacia adelante** (¿en qué se convirtió el requisito?): se lee de izquierda a derecha. **Trazabilidad hacia atrás** (¿por qué existe esta prueba?): cada escenario Gherkin lleva las etiquetas `@HU` y `@CA`, y cada operación del contrato menciona en su `description` la historia y el escenario que la originan.
 
@@ -261,6 +261,9 @@ En las pruebas, el SRI se reemplaza por un doble de prueba del puerto `SriGatewa
 | HU10 | Como dueño de una pequeña empresa, quiero iniciar sesión con mi RUC y mi clave, para entrar desde otro dispositivo. | E1 | El registro ya entrega un token; el inicio de sesión se agrega con el frontend |
 | HU11 | Como equipo de desarrollo, quiero agregar la nota de crédito reutilizando la clave de acceso y el adaptador del SRI, para ampliar los comprobantes con poco esfuerzo. | E4 | Fuera del alcance de la primera versión (sección 1.3 del dossier) |
 | HU12 | Como dueño de una pequeña empresa sin formación técnica, quiero emitir mi primera factura en 3 minutos o menos, para empezar a usar el sistema sin ayuda. | E7 | Necesita el frontend (repositorio `facturaec-frontend`) |
+
+> [!NOTE]
+> **Actualización Entrega Final (v0.3.0):** Las historias **HU10** (autenticación y gestión de sesión) y **HU12** (emisión asistida de facturas en menos de 3 minutos sin formación técnica) quedaron formalmente cubiertas e integradas a través de la aplicación cliente frontend en Next.js 16 ([`frontFacturacion`](https://github.com/Jorel22/frontFacturacionUpec)), conectada en tiempo real a la API y a Supabase PostgreSQL.
 
 ## 6. Gestión de trazabilidad y evolución hacia GitHub Issues / Projects
 

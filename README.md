@@ -28,35 +28,38 @@ flowchart LR
 | [`docs/01-contexto-y-drivers.md`](docs/01-contexto-y-drivers.md) | Contexto, stakeholders, drivers, escenarios E1–E8 y matriz de estilos (v0.1.0) |
 | [`docs/02-vistas-c4/`](docs/02-vistas-c4/) | Vistas C4 como código (Mermaid) |
 | [`docs/03-adr/`](docs/03-adr/) | ADR-001 a ADR-006 (incluye selección de Git frente a SVN y topología de repositorios) |
-| [`docs/04-registro-ia.md`](docs/04-registro-ia.md) | Registro de uso de IA, con la verificación de cada artefacto (Semanas 1 a 3) |
+| [`docs/04-registro-ia.md`](docs/04-registro-ia.md) | Registro de uso de IA, con la verificación de cada artefacto (Semanas 1 a 4 / Entrega final) |
+| [`docs/05-trazabilidad.md`](docs/05-trazabilidad.md) | Matriz de trazabilidad punta a punta (Requisito ➔ Escenario ➔ ADR ➔ Código/Test ➔ PR ➔ Quality Gate) |
 | [`docs/06-mapa-toolchain.md`](docs/06-mapa-toolchain.md) | Proceso, 10 tareas puntuadas, herramientas por fase y pruebas de herramientas |
 | [`docs/07-historias-y-criterios.md`](docs/07-historias-y-criterios.md) | Historias, criterios en Gherkin y matriz de trazabilidad |
 | [`docs/08-matriz-seleccion.md`](docs/08-matriz-seleccion.md) | Evaluación y selección de herramientas CASE (ISO/IEC 14102) |
 | [`docs/08-matriz-git-vs-svn.md`](docs/08-matriz-git-vs-svn.md) | Matriz comparativa en 7 dimensiones entre Git y Apache Subversion (SVN) |
 | [`docs/09-reporte-conflicto.md`](docs/09-reporte-conflicto.md) | Reporte técnico de conflicto de fusión deliberado, marcadores, resolución y prevención |
+| [`docs/09-informe-final.md`](docs/09-informe-final.md) | Informe final integrado del proyecto, arquitectura, pipeline CI/CD y métricas DORA |
 | [`docs/10-gobierno-seguridad-y-dependencias.md`](docs/10-gobierno-seguridad-y-dependencias.md) | Controles de gobierno de ramas, verificación de secretos y auditoría de dependencias |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Flujo de trabajo gobernado, convención de ramas y lista de verificación de PR |
 | [`api/openapi.yaml`](api/openapi.yaml) | Contrato de la API (fuente de verdad) |
 
-## Alcance de v0.3.0
+## Alcance de v0.3.0 / Entrega Final
 
 **Implementado y probado:**
 
-- Registro del emisor con token JWT.
-- Clientes y productos aislados por emisor (E1).
+- Registro del emisor con token JWT (E1).
+- Clientes y productos aislados por emisor (E1), con endpoints de consulta y listado (`GET /clientes`, `GET /productos`, `GET /facturas`).
 - Facturas con IVA (0 %, 5 % y 15 %).
-- Secuencial asignado bajo bloqueo de fila, con 0 duplicados en 1000 solicitudes concurrentes (E6).
-- Clave de acceso de 49 dígitos con módulo 11.
+- Secuencial asignado bajo bloqueo de fila (`with_for_update()`), con 0 duplicados y 0 saltos en 1000 solicitudes concurrentes (E6).
+- Clave de acceso de 49 dígitos con módulo 11 oficial del SRI.
+- Integración y resiliencia con el microservicio [`validacion-SRI`](https://github.com/david5543/validacion-SRI): reintentos con backoff (1s, 2s) ante indisponibilidad (202 PENDIENTE) y manejo de rechazo por clave inválida (422 RECHAZADA) (E2).
+- Pipeline CI automatizado en GitHub Actions con 4 Quality Gates (T4 Spectral, T5 Redocly, T8 Ruff, T7 pytest) y rama `main` protegida.
+- **Frontend web interactivo ([`frontFacturacion`](https://github.com/Jorel22/frontFacturacionUpec)):** Aplicación en Next.js 16 (React 19) desplegada en Vercel, integrada en tiempo real a la API y a Supabase PostgreSQL, con emisión de comprobantes, catálogo interactivo, simulación de rechazo y trazabilidad de estados.
 
 
-**No implementado (backlog, `docs/07`, sección 5.1):**
+**No implementado (backlog técnico):**
 
 - Lentitud del SRI (E8).
-- XML firmado (XAdES-BES) y RIDE.
-- Inicio de sesión.
-- Nota de crédito.
-- Frontend.
-- Integración real con el SRI.
+- Firma electrónica criptográfica XAdES-BES con archivo `.p12` real y generación de PDF RIDE.
+- Nota de crédito (HU11).
+- Integración con el ambiente de producción comercial del SRI (requiere RUC real y firma acreditada).
 
 Los RUC usados en las pruebas son ficticios.
 
