@@ -241,14 +241,14 @@ En las pruebas, el SRI se reemplaza por un doble de prueba del puerto `SriGatewa
 
 | Historia | Escenario | Criterios | Endpoint (operationId) | ADR | Prueba ejecutable |
 |---|---|---|---|---|---|
-| HU1 | E1 | CA1.1, CA1.2 | `registrarEmisor` | ADR-001, ADR-005 | `test_registro_y_aislamiento.py` |
-| HU2 | E1 | CA2.1, CA2.2, CA2.3 | `registrarCliente`, `obtenerCliente` | ADR-001, ADR-002 | `test_registro_y_aislamiento.py` |
-| HU3 | E7 (indirecto) | CA3.1, CA3.2 | `registrarProducto` | ADR-001 | `test_facturacion.py` |
-| HU4 | E3 (indirecto) | CA4.1 | `crearFactura` | ADR-001, ADR-003 | `test_facturacion.py` |
-| HU5 | E6 | CA5.1, CA5.2, CA5.3 | `crearFactura` | ADR-002, ADR-003 | `test_facturacion.py` |
-| HU6 | E2 | CA6.1, CA6.2, CA6.3, CA6.4 | `enviarFacturaSri` | ADR-003 | `test_envio_sri.py` |
-| HU7 | E2 | CA7.1 | `obtenerFactura` | ADR-003 | `test_envio_sri.py` |
-| — | — | Conformidad contrato ↔ código | las 8 operaciones | ADR-005 | `test_contrato.py` |
+| HU1 | E1 | CA1.1, CA1.2 | `registrarEmisor` | ADR-001, ADR-002, ADR-005 | `test_registro_y_aislamiento.py` |
+| HU2 | E1 | CA2.1, CA2.2, CA2.3 | `registrarCliente`, `obtenerCliente`, `listarClientes` | ADR-001, ADR-002, ADR-005 | `test_registro_y_aislamiento.py` |
+| HU3 | E7 (indirecto) | CA3.1, CA3.2 | `registrarProducto`, `listarProductos` | ADR-001, ADR-002, ADR-005 | `test_facturacion.py` |
+| HU4 | E3 (indirecto) | CA4.1 | `crearFactura` | ADR-001, ADR-002, ADR-003 | `test_facturacion.py` |
+| HU5 | E6 | CA5.1, CA5.2, CA5.3 | `crearFactura` | ADR-001, ADR-002, ADR-003 | `test_facturacion.py` |
+| HU6 | E2 | CA6.1, CA6.2, CA6.3, CA6.4 | `enviarFacturaSri` | ADR-001, ADR-002, ADR-003 | `test_envio_sri.py` |
+| HU7 | E2 | CA7.1 | `obtenerFactura`, `listarFacturas` | ADR-001, ADR-003, ADR-005 | `test_envio_sri.py` |
+| — | — | Conformidad contrato ↔ código | las 11 operaciones | ADR-005 | `test_contrato.py` |
 
 **Trazabilidad hacia adelante** (¿en qué se convirtió el requisito?): se lee de izquierda a derecha. **Trazabilidad hacia atrás** (¿por qué existe esta prueba?): cada escenario Gherkin lleva las etiquetas `@HU` y `@CA`, y cada operación del contrato menciona en su `description` la historia y el escenario que la originan.
 
