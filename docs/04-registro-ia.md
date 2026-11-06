@@ -155,3 +155,37 @@ Registro de los usos de IA del proyecto. La primera parte cubre el dossier (Mód
 1. **Verificación del pipeline CI (`IA-S7-01`):** se ejecutaron localmente los mismos comandos definidos en `.github/workflows/ci.yml` (`ruff check src tests`, `ruff format --check src tests` y `PYTHONPATH=src pytest -q`) comprobando 0 hallazgos de linter y 30 pruebas aprobadas en SQLite antes de subir el flujo a GitHub Actions.
 2. **Verificación de trazabilidad documental (`IA-S8-01`):** se ejecutó `pytest tests/test_documentacion.py` y se revisaron todos los enlaces relativos desde `README.md`, `01-contexto-y-drivers.md` y `06-mapa-toolchain.md` para garantizar que ningún documento previo de las versiones `v0.1.0` y `v0.2.0` perdiera sus referencias.
 3. **Verificación de higiene y secretos (`IA-S9-01`):** se inspeccionó el árbol de archivos y el historial completo con `git status --ignored` y búsqueda de patrones de credenciales (`DATABASE_URL`, `JWT_SECRET`, `.p12`, `.env`), confirmando cero filtraciones en los commits de las tres versiones (`v0.1.0`, `v0.2.0` y `v0.3.0`).
+
+
+## Semana 4 (sesiones 10 a 12) · Automatización, Pipeline CI y Gobernanza Final (v0.3.0 / Entrega Final)
+
+**Herramientas y versiones:** Claude 3.5 Sonnet y Google Antigravity Agent.  
+**Protección de datos (LOPDP / NIST SSDF):** No se ingresaron credenciales, certificados `.p12`, contraseñas ni RUC de contribuyentes reales. Las pruebas se realizaron contra el esquema de pruebas del SRI (`ambiente: 1`), claves de acceso matemáticas de prueba y base de datos con aislamiento multi-inquilino.
+
+### Resumen de Interacciones
+
+| ID | Sesión y tarea | Uso de la IA | Defectos encontrados al verificar | Decisión del equipo |
+|---|---|---|---|---|
+| **IA-S10-02** | S10 · Sincronización y Simulación SRI | Endpoints de consulta (`GET /clientes`, `GET /productos`, `GET /facturas`) y parámetro `simular_rechazo` | El borrador inicial del código implementaba las rutas en FastAPI pero omitía su declaración en `api/openapi.yaml`, provocando la falla en `test_contrato.py` | Modificar: sincronizar el contrato `openapi.yaml` declarando las 11 operaciones y esquemas antes de subir a CI |
+| **IA-S11-01** | S11 · Automatización CI (`ci.yml`) | Estructuración del pipeline automatizado en GitHub Actions con Quality Gates | El primer borrador de la IA utilizaba etiquetas flotantes (`@v4`, `@v5`) y carecía del bloque explícito de permisos mínimos | Modificar: fijar versiones exactas inmutables (`@v4.2.2`, `@v4.2.0`, `@v5.3.0`) y aplicar `permissions: contents: read` |
+| **IA-S11-02** | S11 · Trazabilidad y Métricas DORA | Elaboración de `docs/05-trazabilidad.md` y estructura analítica de `docs/09-informe-final.md` | El cálculo preliminar de la IA asumía 100 deploys ficticios en lugar de basarse en los PRs y commits reales de las 4 semanas | Modificar: calcular las métricas DORA a partir de los 10 Pull Requests y commits registrados en el repositorio |
+
+---
+
+### Lista de Verificación de Seguridad y Buenas Prácticas del Workflow CI
+
+En cumplimiento estricto con la **Instrucción 4** de la actividad autónoma, el workflow [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) generado con asistencia de IA fue auditado con la siguiente lista de verificación antes de su integración definitiva:
+
+- [x] **Permisos mínimos declarados (`permissions`):** Se configuró explícitamente `permissions: contents: read` a nivel del workflow. Esto restringe el token efímero `GITHUB_TOKEN` a modo de solo lectura, impidiendo ataques de elevación de privilegios en caso de inyección o vulnerabilidad en dependencias de terceros.
+- [x] **Acciones fijadas por versión específica e inmutable:** No se emplean tags flotantes genéricos (`@main`, `@master`). Todas las acciones oficiales se fijaron con su versión de parche inmutable: `actions/checkout@v4.2.2`, `actions/setup-node@v4.2.0` y `actions/setup-python@v5.3.0`.
+- [x] **Ausencia total de secretos en el pipeline:** Ningún Quality Gate (Spectral, Redocly, Ruff, pytest) depende de tokens secretos (`secrets.DATABASE_URL`, `secrets.API_KEY`, etc.). Las pruebas BDD corren contra SQLite en memoria y mocks controlados; la integración externa se aísla conforme al Escenario E2.
+- [x] **Ejecución real y comprobable:** El flujo completo se verificó localmente y en GitHub Actions. La verificación incluye los 4 Quality Gates (T4 Spectral, T5 Redocly, T8 Ruff, T7 pytest) y la conformidad estricta del contrato OpenAPI.
+- [x] **Protección de rama configurada:** Se exige la aprobación de los checks en verde del workflow antes de permitir la fusión (*merge*) en la rama protegida `main`.
+
+---
+
+### Evaluación Crítica (Semana 4)
+
+* **Aporte principal:** Aceleró la identificación de discrepancias entre el contrato OpenAPI y las rutas de FastAPI mediante pruebas de conformidad automáticas (`test_contrato.py`), y facilitó la consolidación del pipeline con herramientas heterogéneas (Node.js para Spectral/Redocly y Python para Ruff/pytest).
+* **Defecto más crítico detectado:** Proponer rutas en el backend sin actualizar simultáneamente el contrato `openapi.yaml`, lo cual violaba el principio *API-First*. La propia cadena CASE detectó el defecto e impidió la fusión hasta que el contrato fue actualizado.
+* **Supervisión humana aplicada:** Se auditó cada línea del archivo de workflow para asegurar que cumpliera con el estándar de mínimos privilegios y no incorporara dependencias inseguras.
