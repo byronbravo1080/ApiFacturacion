@@ -1,4 +1,4 @@
-name: CI · Validación de Cadena CASE (Ruff + pytest)
+name: CI · Pipeline de Calidad y Cadena CASE (Ruff + pytest + Spectral + Docs)
 
 on:
   push:
@@ -6,17 +6,33 @@ on:
   pull_request:
     branches: ["main"]
 
+permissions:
+  contents: read
+
 jobs:
-  verificar-backend:
-    name: Linter (Ruff) y Pruebas BDD (pytest)
+  verificar-calidad:
+    name: Calidad de Código, Contrato y Pruebas
     runs-on: ubuntu-latest
 
     steps:
       - name: Clonar repositorio
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
+
+      - name: Configurar Node.js 20 (T4 / T5)
+        uses: actions/setup-node@v4.2.0
+        with:
+          node-version: "20"
+
+      - name: Validar contrato OpenAPI con Spectral (T4)
+        run: |
+          npx --yes @stoplight/spectral-cli@6.14.3 lint api/openapi.yaml --ruleset .spectral.yaml
+
+      - name: Construir documentación HTML de la API (T5)
+        run: |
+          npx --yes @redocly/cli@1.25.12 build-docs api/openapi.yaml -o docs/api/index.html
 
       - name: Configurar Python 3.12
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v5.3.0
         with:
           python-version: "3.12"
           cache: "pip"
