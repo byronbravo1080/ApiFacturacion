@@ -80,6 +80,19 @@ def registrar_cliente(datos: ClienteNuevo, emisor: EmisorActual, db: SesionDB) -
 
 
 @router.get(
+    "/api/v1/clientes",
+    tags=["Clientes"],
+    operation_id="listarClientes",
+    response_model_exclude_none=True,
+)
+def listar_clientes(emisor: EmisorActual, db: SesionDB) -> list[Cliente]:
+    clientes = db.scalars(
+        select(ClienteDB).where(ClienteDB.emisor_id == emisor.id).order_by(ClienteDB.id)
+    ).all()
+    return [Cliente.model_validate(c) for c in clientes]
+
+
+@router.get(
     "/api/v1/clientes/{clienteId}",
     tags=["Clientes"],
     operation_id="obtenerCliente",
@@ -106,6 +119,18 @@ def registrar_producto(datos: ProductoNuevo, emisor: EmisorActual, db: SesionDB)
     return Producto.model_validate(producto)
 
 
+@router.get(
+    "/api/v1/productos",
+    tags=["Productos"],
+    operation_id="listarProductos",
+)
+def listar_productos(emisor: EmisorActual, db: SesionDB) -> list[Producto]:
+    productos = db.scalars(
+        select(ProductoDB).where(ProductoDB.emisor_id == emisor.id).order_by(ProductoDB.id)
+    ).all()
+    return [Producto.model_validate(p) for p in productos]
+
+
 @router.post(
     "/api/v1/facturas",
     tags=["Facturas"],
@@ -120,6 +145,18 @@ def crear_factura(
 ) -> Factura:
     factura = facturacion.crear_factura(db, emisor.id, datos, request.app.state.settings)
     return Factura.model_validate(factura)
+
+
+@router.get(
+    "/api/v1/facturas",
+    tags=["Facturas"],
+    operation_id="listarFacturas",
+)
+def listar_facturas(emisor: EmisorActual, db: SesionDB) -> list[Factura]:
+    facturas = db.scalars(
+        select(FacturaDB).where(FacturaDB.emisor_id == emisor.id).order_by(FacturaDB.id.desc())
+    ).all()
+    return [Factura.model_validate(f) for f in facturas]
 
 
 @router.get("/api/v1/facturas/{facturaId}", tags=["Facturas"], operation_id="obtenerFactura")
