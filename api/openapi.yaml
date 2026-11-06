@@ -74,6 +74,22 @@ paths:
         "422":
           $ref: "#/components/responses/DatosInvalidos"
   /api/v1/clientes:
+    get:
+      tags: [Clientes]
+      operationId: listarClientes
+      summary: Listar clientes del emisor
+      description: Devuelve la lista de clientes registrados por el emisor autenticado (E1).
+      responses:
+        "200":
+          description: Lista de clientes.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Cliente"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
     post:
       tags: [Clientes]
       operationId: registrarCliente
@@ -116,6 +132,22 @@ paths:
         "404":
           $ref: "#/components/responses/NoEncontrado"
   /api/v1/productos:
+    get:
+      tags: [Productos]
+      operationId: listarProductos
+      summary: Listar productos del emisor
+      description: Devuelve el catálogo de productos registrados por el emisor autenticado (E1).
+      responses:
+        "200":
+          description: Lista de productos.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Producto"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
     post:
       tags: [Productos]
       operationId: registrarProducto
@@ -139,6 +171,22 @@ paths:
         "422":
           $ref: "#/components/responses/DatosInvalidos"
   /api/v1/facturas:
+    get:
+      tags: [Facturas]
+      operationId: listarFacturas
+      summary: Listar facturas del emisor
+      description: Devuelve el historial de facturas emitidas por el emisor autenticado (E1).
+      responses:
+        "200":
+          description: Lista de facturas.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Factura"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
     post:
       tags: [Facturas]
       operationId: crearFactura
@@ -425,6 +473,10 @@ components:
           maxItems: 100
           items:
             $ref: "#/components/schemas/DetalleNuevo"
+        simular_rechazo:
+          type: boolean
+          default: false
+          description: Simula el rechazo del SRI alterando el dígito verificador Módulo 11.
     Detalle:
       type: object
       required: [productoId, descripcion, cantidad, precioUnitario, tarifaIva, subtotal, iva]
