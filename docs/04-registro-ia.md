@@ -168,7 +168,7 @@ Registro de los usos de IA del proyecto. La primera parte cubre el dossier (Mód
 |---|---|---|---|---|
 | **IA-S10-02** | S10 · Sincronización y Simulación SRI | Endpoints de consulta (`GET /clientes`, `GET /productos`, `GET /facturas`) y parámetro `simular_rechazo` | El borrador inicial del código implementaba las rutas en FastAPI pero omitía su declaración en `api/openapi.yaml`, provocando la falla en `test_contrato.py` | Modificar: sincronizar el contrato `openapi.yaml` declarando las 11 operaciones y esquemas antes de subir a CI |
 | **IA-S11-01** | S11 · Automatización CI (`ci.yml`) | Estructuración del pipeline automatizado en GitHub Actions con Quality Gates | El primer borrador de la IA utilizaba etiquetas flotantes (`@v4`, `@v5`) y carecía del bloque explícito de permisos mínimos | Modificar: fijar versiones exactas inmutables (`@v4.2.2`, `@v4.2.0`, `@v5.3.0`) y aplicar `permissions: contents: read` |
-| **IA-S11-02** | S11 · Trazabilidad y Métricas DORA | Elaboración de `docs/05-trazabilidad.md` y estructura analítica de `docs/09-informe-final.md` | El cálculo preliminar de la IA asumía 100 deploys ficticios en lugar de basarse en los PRs y commits reales de las 4 semanas | Modificar: calcular las métricas DORA a partir de los 10 Pull Requests y commits registrados en el repositorio |
+| **IA-S11-02** | S11 · Trazabilidad y Métricas DORA | Elaboración de `docs/05-trazabilidad.md` y estructura analítica de `docs/09-informe-final.md` | El cálculo preliminar de la IA asumía estimaciones desfasadas (27 commits y 10 PRs) en lugar de auditar el log real | Modificar: recalcular métricas DORA con el historial verificado de git log y Actions (46 commits en main, 14 PRs fusionados del 31/10 al 06/11, LTTC ≈ 24 min, MTTR ≈ 8 min, CFR 7,7%) |
 
 ---
 

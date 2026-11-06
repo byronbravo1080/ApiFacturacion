@@ -118,7 +118,7 @@ El flujo de integración continua está implementado en [`.github/workflows/ci.y
 
 ## 6. Métricas Aproximadas Tipo DORA
 
-Conforme a las directrices de *Accelerate* (Forsgren et al., 2018), se calcularon las 4 métricas DORA a partir del historial real de 27 commits y 10 Pull Requests integrados en el repositorio a lo largo de las 4 semanas de desarrollo:
+Conforme a las directrices de *Accelerate* (Forsgren et al., 2018), se calcularon las 4 métricas DORA a partir del historial real de **46 commits en `main`** y **14 Pull Requests fusionados (del PR #9 al PR #27)** en la ventana activa de GitHub Flow (del 31/10/2026 al 06/11/2026):
 
 ### 6.1. Definición y Fórmulas de Cálculo
 
@@ -126,18 +126,18 @@ $$\text{Deployment Frequency (DF)} = \frac{\text{Total de despliegues/fusiones a
 
 $$\text{Lead Time for Changes (LTTC)} = \frac{\sum (\text{Hora de fusión a main} - \text{Hora del primer commit de la rama})}{\text{Total de Pull Requests}}$$
 
-$$\text{Change Failure Rate (CFR)} = \frac{\text{Número de PRs que provocaron fallas en CI o requirieron rollback}}{\text{Total de Pull Requests procesados}} \times 100$$
+$$\text{Change Failure Rate (CFR)} = \frac{\text{Número de PRs que provocaron fallas en CI o requirieron rollback}}{\text{Total de ejecuciones de PR en CI}} \times 100$$
 
 $$\text{Failed Deployment Recovery Time (MTTR)} = \frac{\sum (\text{Hora del commit de resolución} - \text{Hora del fallo reportado})}{\text{Total de incidentes}}$$
 
 ### 6.2. Resultados Obtenidos en FacturaEC
 
-| Métrica DORA | Valor Calculado en el Proyecto | Clasificación de Desempeño | Justificación y Fuente de Datos |
+| Métrica DORA | Valor Calculado en el Proyecto | Clasificación de Desempeño | Justificación y Fuente de Datos (`git log` / Actions) |
 |---|:---:|:---:|---|
-| **Frecuencia de Despliegue (DF)** | **0,71 deploys / día**<br>(~5 fusiones / semana) | **Alto (High)** | 10 Pull Requests integrados exitosamente a la rama `main` en un período activo de 14 días (del 23/10 al 06/11). |
-| **Tiempo de Entrega de Cambios (LTTC)** | **2,8 horas**<br>(Promedio por PR) | **Élite (Elite)** | Gracias a la estrategia de ramas cortas de GitHub Flow, el tiempo promedio desde el primer commit en la rama hasta el merge fue inferior a 3 horas. |
-| **Tasa de Fallos en Cambios (CFR)** | **10,0 %**<br>(1 fallo en 10 PRs) | **Élite (Elite)** | Solo 1 ejecución de Pull Request presentó un fallo en los Quality Gates de CI (la discrepancia intencional del contrato), situándose dentro del umbral élite de la industria (0% - 15%). |
-| **Tiempo de Recuperación de Fallos (MTTR)** | **14 minutos** | **Élite (Elite)** | Tiempo transcurrido entre el reporte del fallo en `test_contrato.py` y el envío del commit de corrección `b87bdfb` que restauró el check en verde. |
+| **Frecuencia de Despliegue (DF)** | **2,0 deploys / día**<br>(14 fusiones / 7 días) | **Élite (Elite)** | 14 Pull Requests fusionados a la rama `main` en 7 días calendario de actividad de PRs (del PR #9 el 31/10 al PR #27 el 06/11). |
+| **Tiempo de Entrega de Cambios (LTTC)** | **≈ 24 minutos**<br>(Mediana ≈ 4 min) | **Élite (Elite)** | Tiempo medio desde el primer commit en la rama hasta su fusión en `main`. El valor máximo registrado fue de 194 min en el PR #21 (microservicio SRI). |
+| **Tasa de Fallos en Cambios (CFR)** | **7,7 %**<br>(1 fallo en 13 ejecuciones) | **Élite (Elite)** | Solo 1 ejecución de Pull Request reportó falla en los Quality Gates de CI (la discrepancia intencional del contrato), cumpliendo el rango élite (<15%). |
+| **Tiempo de Recuperación de Fallos (MTTR)** | **≈ 8 minutos** | **Élite (Elite)** | Tiempo exacto entre el registro de la falla en `test_contrato.py` (04:50 UTC) y el commit de corrección `b87bdfb` verificado en verde (04:57 UTC). |
 
 ---
 
